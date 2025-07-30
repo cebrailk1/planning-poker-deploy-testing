@@ -11,7 +11,7 @@ class SocketConnecter{
         this.socket = null
         this.roomHash=null
     }
-    createRoom(username){
+    createRoom(username,callback){
         console.log("creating room...",username)
         this.socket = new WebSocket("ws://localhost:8080")
         this.socket.onopen=()=>{
@@ -21,6 +21,8 @@ class SocketConnecter{
                 console.log(response)
                 if(response.type==="room-created"){
                     this.roomHash = response.roomId
+                    console.log("roomhash",this.roomHash)
+                    callback(this.roomHash)
                 }
             }
         }

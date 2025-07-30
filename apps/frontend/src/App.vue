@@ -33,22 +33,12 @@ export default {
       }
     }, */
 
-    createNewRoom(username){
-       this.$socketConnect.createRoom(username, (roomHash) => {
-    this.$router.push({ name: 'GameRoom', params: { hash: roomHash } }) 
-  })
-    }
+
   },
 }
 </script>
 
 <template>
-  <!-- <div v-if="authenticated">
-    <GameRoom></GameRoom>
-  </div>
-  <div v-else>  
-    <HelloWorld @new-room="createNewRoom" />
-</div> -->
 <div><RouterView></RouterView></div>
 </template>
 

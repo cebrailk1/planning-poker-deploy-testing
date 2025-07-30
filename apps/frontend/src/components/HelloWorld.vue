@@ -8,7 +8,11 @@ export default{
   },
   methods:{
     createRoom(){
-      this.$emit("new-room",this.username)
+      this.$socketConnect.createRoom(this.username, (roomHash) => {
+       console.log("router pushing",this.username)
+       localStorage.setItem("rooms",JSON.stringify({[roomHash]:this.username}))
+       this.$router.push({ name: 'GameRoom', params: { hash: roomHash }})
+      })
     }
   }
 }
