@@ -29,12 +29,7 @@ wss.on("connection",function connection(ws){
 
 
 function roomHasher(){
-    let hasher = ''
-    for(let i=0;i<15;i++){
-      const randomNumber =  Math.round(Math.random(i))
-        hasher +=randomNumber
-    }
-    return hasher
+    return crypto.randomUUID()
 }
 
 function createNewRoom(){}
