@@ -2,34 +2,72 @@ import { reactive } from "vue"
 
 export default{
     install: app=>{
-            const socketConnecter = reactive(new SocketConnecter())
-        app.config.globalProperties.$socketConnect = socketConnecter
+            //const socketConnecter = reactive(new SocketConnecter())
+        app.config.globalProperties.$socketConnect = new SocketConnecter()
     }
 }
-class SocketConnecter{
-    constructor(){
-        this.socket = null
-        this.roomHash=null
+let socket
+let roomHash 
+
+class SocketConnecter {
+    constructor() {
+        this._onRoomCreatedCallback = null
+        this._onRoomJoinedCallback = null
+        return reactive(this)
     }
-    createRoom(username,callback){
-        console.log("creating room...",username)
-        this.socket = new WebSocket("ws://localhost:8080")
-        this.socket.onopen=()=>{
-            this.socket.send(JSON.stringify({type:"create room",username}))
-            this.socket.onmessage=(message)=>{
-                const response = JSON.parse(message.data)
-                console.log(response)
-                if(response.type==="room-created"){
-                    this.roomHash = response.roomId
-                    console.log("roomhash",this.roomHash)
-                    callback(this.roomHash)
+
+    connect(callback) {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            callback()
+            return
+        }
+
+        socket = new WebSocket("ws://localhost:8080")
+
+        socket.onopen = () => {
+            if (callback) callback()
+        }
+
+        socket.onmessage = (message) => {
+            const response = JSON.parse(message.data)
+            console.log("Message from server:", response)
+
+            if (response.type === "room-created") {
+                roomHash = response.roomId
+                if (this._onRoomCreatedCallback) {
+                    this._onRoomCreatedCallback(roomHash)
+                    this._onRoomCreatedCallback = null 
                 }
             }
+            if(response.type === "room-joined"){
+            if (this._onRoomJoinedCallback) {
+            this._onRoomJoinedCallback(roomHash)
+            this._onRoomJoinedCallback = null 
+        }
+            }
+        }
+
+        socket.onerror = (err) => {
+            console.error("WebSocket error:", err)
+        }
+
+        socket.onclose = () => {
+            console.log("WebSocket closed")
         }
     }
-    joinRoom(roomId){
-        this.socket.onopen=()=>{
-            this.socket.send(JSON.stringify({type:"join room",roomId}))
-        }
-    }  
+
+    createRoom(username, callback) {
+                this._onRoomCreatedCallback = callback
+        this.connect(() => {
+            socket.send(JSON.stringify({ type: "create room", username }))
+        })
+    }
+
+    joinRoom(roomId,user,callback) {
+        this._onRoomJoinedCallback = callback
+        this.connect(() => {
+            socket.send(JSON.stringify({ type: "join room", roomId,user }))
+
+        })
+    }
 }

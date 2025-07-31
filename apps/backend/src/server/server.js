@@ -12,28 +12,18 @@ wss.on("connection",function connection(ws){
        if(type==="create room"){
        const roomId =roomHasher()
         rooms[roomId] = []
-        //rooms[roomId].push(username)
+        rooms[roomId].push({name:username,type:"Scrum Master"})
         console.log(rooms)
         ws.send(JSON.stringify({type:"room-created",roomId}))
        }
        if(type === "join room"){
         const {roomId,user} = JSON.parse(data)
-        console.log(roomId)
-        rooms[roomId].push(user)
-        console.log("raum",rooms[roomId])
+        console.log("adding player",roomId,user)
+        rooms[roomId].push( {name:user,type:"Player"})
+        console.log(rooms)
+        ws.send(JSON.stringify({type:"room-joined",message:"User angelegt"}))
        }
-       if(usersLength==0){
-        users[username] = new Set()
-        users[username]["role"] = "Scrum Master"
-        ws.send(JSON.stringify({type:"success",message:"User angelegt"}))
-       }else{
-        if(!users[username]){
-          users[username] = new Set()
-            ws.send(JSON.stringify({type:"success",message:"User angelegt"}))
-        }else{
-            ws.send(JSON.stringify({type:"error",message:"User already exists"}))
-        }
-    }
+       
     })
 })
 
@@ -44,7 +34,6 @@ function roomHasher(){
       const randomNumber =  Math.round(Math.random(i))
         hasher +=randomNumber
     }
-    console.log(hasher)
     return hasher
 }
 

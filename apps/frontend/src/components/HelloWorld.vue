@@ -1,6 +1,5 @@
 <script>
 export default{
-  emits:["new-room"],
   data(){
     return{
       username:""
@@ -9,7 +8,6 @@ export default{
   methods:{
     createRoom(){
       this.$socketConnect.createRoom(this.username, (roomHash) => {
-       console.log("router pushing",this.username)
        localStorage.setItem("rooms",JSON.stringify({[roomHash]:this.username}))
        this.$router.push({ name: 'GameRoom', params: { hash: roomHash }})
       })
