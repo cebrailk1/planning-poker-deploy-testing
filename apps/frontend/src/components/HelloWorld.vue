@@ -7,11 +7,14 @@ export default{
   },
   methods:{
     createRoom(){
+      if(this.username===''){
+        alert("type username in...")
+      }else{
       this.$socketConnect.createRoom(this.username, (roomHash) => {
        localStorage.setItem("rooms",JSON.stringify({[roomHash]:this.username}))
        this.$router.push({ name: 'GameRoom', params: { hash: roomHash }})
       })
-    }
+    }}
   }
 }
 </script>

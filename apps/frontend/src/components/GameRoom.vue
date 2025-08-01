@@ -1,22 +1,30 @@
-<script>export default{
+<script>
+
+export default{
     props:{hash:String}, 
     data(){
         return{
             hasUsername:false,
-            username:""
+            username:"",
+            existingUser:null,
+            userList:[]
         }
     },
     methods:{
         getUsernameForRoom(){
            const savedRooms =  JSON.parse(localStorage.getItem("rooms"))
            console.log(savedRooms[this.hash])
+           //this.userList.push(savedRooms[this.hash])
             if(savedRooms[this.hash]){
+                this.existingUser = savedRooms[this.hash]
                 this.hasUsername = true
             }
         },
         UserJoinRoom(){
-            this.$socketConnect.joinRoom(this.hash,this.username,(()=>{
+            this.$socketConnect.joinRoom(this.hash,this.username,((room)=>{
                 localStorage.setItem("rooms",JSON.stringify({[this.hash]:this.username}))
+                console.log("der raum",room)
+                this.userList = room
                 this.getUsernameForRoom()
             }))
         }   
@@ -31,7 +39,11 @@
         <button @click="UserJoinRoom">Join Room</button>
     </div>
     <div v-else id="game-board">Du bist im Spiel
-        <p>{{ this.hash }}</p>
+        <h1>Welcome {{ this.existingUser }}</h1>
+        <p>Your room-link: <strong>http://localhost:5173/room/{{ this.hash }}</strong></p>
+        <ul>
+            <li v-for="(user) in this.userList">d{{ user.name }}</li>
+        </ul>
     </div>
 </template>
 <style scoped></style>

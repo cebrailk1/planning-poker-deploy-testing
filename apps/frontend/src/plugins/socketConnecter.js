@@ -41,9 +41,13 @@ class SocketConnecter {
             }
             if(response.type === "room-joined"){
             if (this._onRoomJoinedCallback) {
-            this._onRoomJoinedCallback(roomHash)
+            this._onRoomJoinedCallback(response.room)
             this._onRoomJoinedCallback = null 
         }
+            }
+
+            if(response.type === "user-joined"){
+                console.log("ein neus spieler ist beigetrerten",response)
             }
         }
 
