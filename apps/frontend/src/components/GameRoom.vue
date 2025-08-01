@@ -1,7 +1,8 @@
 <script>
-
+import GameCards from './GameCards.vue'
 export default{
-    props:{hash:String}, 
+    props:{hash:String},
+    components:{GameCards}, 
     data(){
         return{
             hasUsername:false,
@@ -42,12 +43,38 @@ export default{
         <input type="text" placeholder="username" v-model="username">
         <button @click="UserJoinRoom">Join Room</button>
     </div>
-    <div v-else id="game-board">Du bist im Spiel
-        <h1>Welcome {{ this.existingUser }}</h1>
-        <p>Your room-link: <strong>http://localhost:5173/room/{{ this.hash }}</strong></p>
-        <ul>
-            <li>d{{ this.userList }}</li>
-        </ul>
+    <div v-else  class="relative min-h-screen bg-green-800 text-white overflow-hidden">
+        <!--Info-Panel oben rechts-->
+        <div class="absolute top-4 right-3 bg-green-900 bg-opacity-80 p-4 rounded-lg shadow-lg w-80 space-y-3 text-sm">
+            <h2 class="text-lg font-bold text-yellow-300">🧾 Spielinformationen</h2>
+            <div class="font-semibold">
+        <span class="font-semibold">Benutzername:</span><br />
+                {{ this.existingUser }}
+            </div>
+
+            <div>
+                <span class="font-semibold">Raum-Link: </span><br />
+                <p class="text-blue-200 underline break-all">http://localhost:5173/room/{{ this.hash }}</p>
+            </div>      
+        </div>
+
+        <!--Oben links     absolute top-4 left-4 bg-green-800 text-white rounded-xl p-6 w-full max-w-2xl shadow-xl space-y-4  -->
+        <div class="absolute top-4 left-4 bg-green-900 text-sm bg-green-900 bg-opacity-80 p-4 rounded-lg shadow-lg w-80 space-y-3">
+            <div>
+                <h2 class="text-2xl font-semibold mb-2">Spieler im Raum:</h2>
+            <ul class="list-none list-inside space-y-1 text-lg text-white">
+        <li v-for="user in userList" :key="user">{{ user.toUpperCase() }}</li>
+            </ul>
+            </div>
+        </div>
+
+        
+            <div class="flex justify-center items-center h-screen">
+            <div class="w-full max-w-6xl bg-green-700 border-[10px] border-yellow-400 rounded-full h-[500px] flex justify-center items-center">
+                <GameCards></GameCards>
+            </div>
+            </div>
+       
     </div>
 </template>
 <style scoped></style>

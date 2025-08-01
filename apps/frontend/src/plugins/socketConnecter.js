@@ -63,7 +63,7 @@ class SocketConnecter {
       }
 
       if (response.type === "user-joined") {
-        console.log("ein neus spieler ist beigetrerten", response);
+        console.log("ein neus spieler ist beigetrerten");
         this.userList.push(response.name);
         console.log("user list updated", this.userList);
       }
