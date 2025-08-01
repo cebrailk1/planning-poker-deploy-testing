@@ -14,7 +14,11 @@ wss.on("connection", function connection(ws) {
       rooms[roomId].push({ name: username, role: "Scrum Master", socket: ws });
       console.log(rooms);
       ws.send(
-        JSON.stringify({ type: "room-created", roomId, room: rooms[roomId] })
+        JSON.stringify({
+          type: "room-created",
+          roomId,
+          room: rooms[roomId],
+        })
       );
     }
 
