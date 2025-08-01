@@ -7,7 +7,6 @@ export default{
             hasUsername:false,
             username:"",
             existingUser:null,
-            userList:[]
         }
     },
     methods:{
@@ -24,10 +23,15 @@ export default{
             this.$socketConnect.joinRoom(this.hash,this.username,((room)=>{
                 localStorage.setItem("rooms",JSON.stringify({[this.hash]:this.username}))
                 console.log("der raum",room)
-                this.userList = room
+                //this.userList = room
                 this.getUsernameForRoom()
             }))
         }   
+    },
+    computed:{
+        userList(){
+            return this.$socketConnect.userList
+        }
     },
     mounted(){
         this.getUsernameForRoom()
@@ -42,7 +46,7 @@ export default{
         <h1>Welcome {{ this.existingUser }}</h1>
         <p>Your room-link: <strong>http://localhost:5173/room/{{ this.hash }}</strong></p>
         <ul>
-            <li v-for="(user) in this.userList">d{{ user.name }}</li>
+            <li>d{{ this.userList }}</li>
         </ul>
     </div>
 </template>

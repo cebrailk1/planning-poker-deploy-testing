@@ -13,6 +13,7 @@ class SocketConnecter {
     constructor() {
         this._onRoomCreatedCallback = null
         this._onRoomJoinedCallback = null
+        this.userList = []
         return reactive(this)
     }
 
@@ -41,6 +42,7 @@ class SocketConnecter {
             }
             if(response.type === "room-joined"){
             if (this._onRoomJoinedCallback) {
+                this.userList = response.room
             this._onRoomJoinedCallback(response.room)
             this._onRoomJoinedCallback = null 
         }
@@ -48,6 +50,8 @@ class SocketConnecter {
 
             if(response.type === "user-joined"){
                 console.log("ein neus spieler ist beigetrerten",response)
+                this.userList.push({name:response.name})
+                console.log("user list updated",this.userList)
             }
         }
 
