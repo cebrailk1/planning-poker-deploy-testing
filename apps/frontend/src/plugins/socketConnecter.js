@@ -67,6 +67,10 @@ class SocketConnecter {
         this.userList.push(response.name);
         console.log("user list updated", this.userList);
       }
+
+      if(response.type === "user exists"){
+        console.log("User already exists")
+      }
     };
 
     socket.onerror = (err) => {
