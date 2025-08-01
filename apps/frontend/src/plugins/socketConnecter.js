@@ -45,13 +45,17 @@ class SocketConnecter {
 
       if (response.type === "room-joined") {
         if (this._onRoomJoinedCallback) {
+          // vor dem push sind beide user drinnen - wieso..?
           console.log(
             this.userList,
             "userlist vor join des players",
             response.room
           );
 
-          this.userList.push(response.room[response.room.length - 1]);
+          response.room.forEach((player) => {
+            this.userList.push(player.name);
+          });
+
           console.log(this.userList, "das, ist dsakjs2");
           this._onRoomJoinedCallback(response.room);
           this._onRoomJoinedCallback = null;
