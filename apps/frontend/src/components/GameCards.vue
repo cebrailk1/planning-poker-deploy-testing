@@ -1,5 +1,6 @@
 <script>
 export default {
+    emits:["card"],
   data() {
     return {
       fibonacciCards: [1, 2, 3, 5, 8, 13],
