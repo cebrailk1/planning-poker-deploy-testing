@@ -38,7 +38,6 @@ class SocketConnecter {
         roomHash = response.roomId;
         this.userList.push(response.room[0].name);
         this.userRole = response.room[0].role;
-        console.log("hallo", this.userList, this.userRole);
         if (this._onRoomCreatedCallback) {
           this._onRoomCreatedCallback(roomHash);
           this._onRoomCreatedCallback = null;
@@ -61,7 +60,6 @@ class SocketConnecter {
       }
 
       if (response.type === "user-exists") {
-        console.log("User exists error received");
         if (this._onRoomJoinedCallback) {
           this._onRoomJoinedCallback({
             error: "user-exists",

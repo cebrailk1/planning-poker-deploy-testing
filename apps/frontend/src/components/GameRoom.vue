@@ -13,8 +13,6 @@ export default {
   methods: {
     getUsernameForRoom() {
       const savedRooms = JSON.parse(localStorage.getItem("rooms"));
-      console.log(savedRooms[this.hash]);
-      //this.userList.push(savedRooms[this.hash])
       if (savedRooms[this.hash]) {
         this.existingUser = savedRooms[this.hash];
         this.hasUsername = true;
@@ -35,9 +33,7 @@ export default {
       });
     },
     setCard(card) {
-      console.log(card);
       const savedRooms = JSON.parse(localStorage.getItem("rooms"));
-      console.log(savedRooms[this.hash]);
       this.$socketConnect.setCard(card, savedRooms[this.hash], this.hash);
     },
   },
