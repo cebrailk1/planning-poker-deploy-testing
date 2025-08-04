@@ -1,7 +1,6 @@
 import WebSocket, { WebSocketServer } from "ws";
 
 const wss = new WebSocketServer({ port: 8080 });
-let users = {};
 let rooms = {};
 wss.on("connection", function connection(ws) {
   ws.on("error", console.error);
@@ -70,16 +69,19 @@ wss.on("connection", function connection(ws) {
         }
       });
     }
-    if(type === "set card"){
-      const {card,user,roomId} = JSON.parse(data)
-      console.log(card,user,roomId)
-      console.log(rooms[roomId].map((item)=>item.name))
-      rooms[roomId].map((item)=>{
-        if(item.name===user){
-         item['card']=card
+    if (type === "set card") {
+      const { card, user, roomId } = JSON.parse(data);
+
+      rooms[roomId].map((item) => {
+        if (item.name === user) {
+          if (item.card && item.card === card) {
+            item.card = null;
+          } else {
+            item["card"] = card;
+          }
         }
-      })
-      console.log("room",rooms[roomId])
+      });
+      console.log("room", rooms[roomId]);
     }
   });
 });
