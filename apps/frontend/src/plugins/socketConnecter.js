@@ -14,7 +14,7 @@ class SocketConnecter {
     this._onRoomCreatedCallback = null;
     this._onRoomJoinedCallback = null;
     this.userList = [];
-    this.userRole = null
+    this.userRole = null;
     return reactive(this);
   }
 
@@ -37,8 +37,8 @@ class SocketConnecter {
       if (response.type === "room-created") {
         roomHash = response.roomId;
         this.userList.push(response.room[0].name);
-        this.userRole = response.room[0].role
-        console.log("hallo", this.userList,this.userRole);
+        this.userRole = response.room[0].role;
+        console.log("hallo", this.userList, this.userRole);
         if (this._onRoomCreatedCallback) {
           this._onRoomCreatedCallback(roomHash);
           this._onRoomCreatedCallback = null;
@@ -47,31 +47,27 @@ class SocketConnecter {
 
       if (response.type === "room-joined") {
         if (this._onRoomJoinedCallback) {
-          // vor dem push sind beide user drinnen - wieso..?
-          console.log(
-            this.userList,
-            "userlist vor join des players",
-            response.room
-          );
-
           response.room.forEach((player) => {
             this.userList.push(player.name);
           });
-
-          console.log(this.userList, "das, ist dsakjs2");
           this._onRoomJoinedCallback(response.room);
           this._onRoomJoinedCallback = null;
         }
       }
 
       if (response.type === "user-joined") {
-        console.log("ein neus spieler ist beigetrerten");
         this.userList.push(response.name);
-        console.log("user list updated", this.userList);
+        console.log("Neuer Spieler:", response.name);
       }
 
-      if(response.type === "user exists"){
-        console.log("User already exists")
+      if (response.type === "user-exists") {
+        console.log("User exists error received");
+        if (this._onRoomJoinedCallback) {
+          this._onRoomJoinedCallback({
+            error: "user-exists",
+            message: "Username already taken",
+          });
+        }
       }
     };
 
@@ -98,9 +94,9 @@ class SocketConnecter {
     });
   }
 
-  setCard(card,user,roomId){
-    this.connect(()=>{
-      socket.send(JSON.stringify({type:"set card",card ,user,roomId}))
-    })
+  setCard(card, user, roomId) {
+    this.connect(() => {
+      socket.send(JSON.stringify({ type: "set card", card, user, roomId }));
+    });
   }
 }

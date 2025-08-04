@@ -24,11 +24,16 @@ wss.on("connection", function connection(ws) {
 
     if (type === "join room") {
       const { roomId, user } = JSON.parse(data);
-      
-      if(checkUserExists(rooms[roomId],user)){
-        console.log("user exists")
-        ws.send(JSON.stringify({type:"user exists"}))
-        return
+
+      if (checkUserExists(rooms[roomId], user)) {
+        console.log("user exists");
+        ws.send(
+          JSON.stringify({
+            type: "user-exists",
+            message: "User already exists",
+          })
+        );
+        return;
       }
 
       if (!rooms[roomId]) {
@@ -83,12 +88,12 @@ function roomHasher() {
   return crypto.randomUUID();
 }
 
-function checkUserExists(room,user){
-    for(let e of room){
-        if(e.name===user){
-            return true
-        }
+function checkUserExists(room, user) {
+  for (let e of room) {
+    if (e.name === user) {
+      return true;
     }
+  }
 }
 
 function createNewRoom() {}
