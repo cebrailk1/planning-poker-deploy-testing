@@ -95,4 +95,10 @@ class SocketConnecter {
       socket.send(JSON.stringify({ type: "join room", roomId, user }));
     });
   }
+
+  setCard(card,user,roomId){
+    this.connect(()=>{
+      JSON.send(JSON.stringify({}))
+    })
+  }
 }

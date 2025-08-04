@@ -27,6 +27,13 @@ export default{
                 //this.userList = room
                 this.getUsernameForRoom()
             }))
+        },
+        setCard(){
+            
+            const savedRooms = JSON.parse(localStorage.getItem("rooms"))
+            console.log(savedRooms[this.hash])
+            this.$socketConnect.setCard()
+            
         }   
     },
     computed:{
@@ -71,7 +78,7 @@ export default{
         
             <div class="flex justify-center items-center h-screen">
             <div class="w-full max-w-6xl bg-green-700 border-[10px] border-yellow-400 rounded-full h-[500px] flex justify-center items-center">
-                <GameCards></GameCards>
+                <GameCards @card="setCard"></GameCards>
             </div>
             </div>
        
