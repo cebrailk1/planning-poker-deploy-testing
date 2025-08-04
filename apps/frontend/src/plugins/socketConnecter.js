@@ -14,6 +14,7 @@ class SocketConnecter {
     this._onRoomCreatedCallback = null;
     this._onRoomJoinedCallback = null;
     this.userList = [];
+    this.userRole = null
     return reactive(this);
   }
 
@@ -36,7 +37,8 @@ class SocketConnecter {
       if (response.type === "room-created") {
         roomHash = response.roomId;
         this.userList.push(response.room[0].name);
-        console.log("hallo", this.userList);
+        this.userRole = response.room[0].role
+        console.log("hallo", this.userList,this.userRole);
         if (this._onRoomCreatedCallback) {
           this._onRoomCreatedCallback(roomHash);
           this._onRoomCreatedCallback = null;
