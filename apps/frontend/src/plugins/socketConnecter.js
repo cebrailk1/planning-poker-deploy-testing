@@ -100,7 +100,7 @@ class SocketConnecter {
 
   setCard(card,user,roomId){
     this.connect(()=>{
-      JSON.send(JSON.stringify({}))
+      socket.send(JSON.stringify({type:"set card",card ,user,roomId}))
     })
   }
 }

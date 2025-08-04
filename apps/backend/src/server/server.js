@@ -65,6 +65,17 @@ wss.on("connection", function connection(ws) {
         }
       });
     }
+    if(type === "set card"){
+      const {card,user,roomId} = JSON.parse(data)
+      console.log(card,user,roomId)
+      console.log(rooms[roomId].map((item)=>item.name))
+      rooms[roomId].map((item)=>{
+        if(item.name===user){
+         item['card']=card
+        }
+      })
+      console.log("room",rooms[roomId])
+    }
   });
 });
 

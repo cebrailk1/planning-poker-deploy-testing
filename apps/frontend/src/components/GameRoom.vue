@@ -28,11 +28,11 @@ export default{
                 this.getUsernameForRoom()
             }))
         },
-        setCard(){
-            
+        setCard(card){ 
+            console.log(card)
             const savedRooms = JSON.parse(localStorage.getItem("rooms"))
             console.log(savedRooms[this.hash])
-            this.$socketConnect.setCard()
+            this.$socketConnect.setCard(card,savedRooms[this.hash],this.hash)
             
         }   
     },
@@ -78,10 +78,10 @@ export default{
         
             <div class="flex justify-center items-center h-screen">
             <div class="w-full max-w-6xl bg-green-700 border-[10px] border-yellow-400 rounded-full h-[500px] flex justify-center items-center">
-                <GameCards  v-if="this.$socketConnect.userRole !=='Scrum Master'" @card="setCard"></GameCards>
+                <GameCards @card="setCard"></GameCards>
             </div>
             </div>
-       
+        <!--  v-if="this.$socketConnect.userRole !=='Scrum Master'" -->
     </div>
 </template>
 <style scoped></style>
