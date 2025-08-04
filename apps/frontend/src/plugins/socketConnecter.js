@@ -55,6 +55,7 @@ class SocketConnecter {
       }
 
       if (response.type === "user-joined") {
+        console.log("neuer user joined",response)
         this.userList.push(response.name);
         console.log("Neuer Spieler:", response.name);
       }
@@ -65,8 +66,12 @@ class SocketConnecter {
             error: "user-exists",
             message: "Username already taken",
           });
-        }
+        }       
       }
+
+      if(response.type === "set-card"){
+        console.log("Neue Karte gesetzt",response.card)
+      }  
     };
 
     socket.onerror = (err) => {

@@ -91,6 +91,7 @@ export default {
         class="w-full max-w-6xl bg-green-700 border-[10px] border-yellow-400 rounded-full h-[500px] flex justify-center items-center"
       >
         <GameCards @card="setCard"></GameCards>
+        <!--vifuserrole!==scrum master-->
       </div>
     </div>
   </div>
