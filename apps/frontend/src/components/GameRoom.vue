@@ -59,7 +59,7 @@ export default {
   },
   computed: {
     userList() {
-      console.log(this.$socketConnect.userList)
+      console.log("userliste wurde geupdated",this.$socketConnect.userList)
       return this.$socketConnect.userList;
     },
   },

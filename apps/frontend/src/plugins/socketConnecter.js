@@ -49,6 +49,7 @@ class SocketConnecter {
       if (response.type === "room-joined") {
         if (this._onRoomJoinedCallback) {
           response.room.forEach((player) => {
+            console.log("adding player to your list",player.name)
             this.userList.push({name:player.name,role:player.role,card:player.card})
             //this.userList.push(player.name);
           });
@@ -60,8 +61,8 @@ class SocketConnecter {
       if (response.type === "user-joined") {
         console.log("neuer user joined",response)
         //this.userList.push(response.name);
-        this.userList.push({name:response.user,role:response.role,card:response.card})
-        console.log("Neuer Spieler:", response.name);
+        this.userList.push({name:response.name,role:response.role,card:response.card})
+        console.log("Neuer Spieler:", response.name,"updated lsit in socketconnecter",this.userList);
       }
 
       if (response.type === "user-exists") {

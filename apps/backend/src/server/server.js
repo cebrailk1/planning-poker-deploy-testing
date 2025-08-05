@@ -41,7 +41,7 @@ wss.on("connection", function connection(ws) {
         return;
       }
       rooms[roomId].push({ name: user, role: "Player", socket: ws,card:null });
-      console.log(rooms);
+      console.log("Räume",rooms);
 
       ws.send(
         JSON.stringify({
@@ -53,6 +53,7 @@ wss.on("connection", function connection(ws) {
       );
 
       rooms[roomId].forEach((player) => {
+        console.log("player",player.name)
         if (
           player.socket !== ws &&
           player.socket.readyState === WebSocket.OPEN
