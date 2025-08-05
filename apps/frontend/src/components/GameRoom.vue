@@ -12,11 +12,18 @@ export default {
   },
   methods: {
     getUsernameForRoom() {
+      console.log("checking",this.$socketConnect.userList) 
       const savedRooms = JSON.parse(localStorage.getItem("rooms"));
-      if (savedRooms[this.hash]) {
+      console.log(savedRooms.createdRoom===false)
+      if (savedRooms[this.hash]&& savedRooms.createdRoom===false) {
+        localStorage.setItem
         this.existingUser = savedRooms[this.hash];
+        this.$socketConnect.rejoin(this.existingUser,this.hash)
         this.hasUsername = true;
+      
       }
+      this.initialJoin()
+      //rejoin funk hier aufrufen
     },
     UserJoinRoom() {
       this.$socketConnect.joinRoom(this.hash, this.username, (response) => {
@@ -29,9 +36,22 @@ export default {
           "rooms",
           JSON.stringify({ [this.hash]: this.username })
         );
-        this.getUsernameForRoom();
+        this.initialJoin()
+        //this.getUsernameForRoom();
       });
+    },//neue funktion aufrufen für initialjoin
+    initialJoin(){
+      console.log("joining for the first time")
+      //console.log("checking",this.$socketConnect.userList) 
+      const savedRooms = JSON.parse(localStorage.getItem("rooms"));
+      savedRooms.createdRoom = false
+      localStorage.setItem("rooms",JSON.stringify({[this.hash]:savedRooms[this.hash],createdRoom:savedRooms.createdRoom}))
+       if (savedRooms[this.hash]) {
+        this.existingUser = savedRooms[this.hash];
+        this.hasUsername = true;      
+      }
     },
+    
     setCard(card) {
       const savedRooms = JSON.parse(localStorage.getItem("rooms"));
       this.$socketConnect.setCard(card, savedRooms[this.hash], this.hash);
@@ -39,6 +59,7 @@ export default {
   },
   computed: {
     userList() {
+      console.log(this.$socketConnect.userList)
       return this.$socketConnect.userList;
     },
   },
@@ -81,7 +102,7 @@ export default {
       <div>
         <h2 class="text-2xl font-semibold mb-2">Spieler im Raum:</h2>
         <ul class="list-none list-inside space-y-1 text-lg text-white">
-          <li v-for="user in userList" :key="user">{{ user.toUpperCase() }}</li>
+          <li v-for="user in userList" :key="user">{{ user.name.toUpperCase() }}</li>
         </ul>
       </div>
     </div>

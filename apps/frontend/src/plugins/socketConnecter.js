@@ -13,7 +13,7 @@ class SocketConnecter {
   constructor() {
     this._onRoomCreatedCallback = null;
     this._onRoomJoinedCallback = null;
-    this.userList = [];
+    this.userList = []; //[{name,role,card}]
     this.userRole = null;
     return reactive(this);
   }
@@ -36,8 +36,10 @@ class SocketConnecter {
 
       if (response.type === "room-created") {
         roomHash = response.roomId;
-        this.userList.push(response.room[0].name);
-        this.userRole = response.room[0].role;
+        //this.userList.push(response.room[0].name);
+        //this.userRole = response.room[0].role;
+          this.userList.push({name:response.room[0].name,role:response.room[0].role,card:response.room[0].card})
+          console.log("nach erstellen des raumes",this.userList)
         if (this._onRoomCreatedCallback) {
           this._onRoomCreatedCallback(roomHash);
           this._onRoomCreatedCallback = null;
@@ -47,7 +49,8 @@ class SocketConnecter {
       if (response.type === "room-joined") {
         if (this._onRoomJoinedCallback) {
           response.room.forEach((player) => {
-            this.userList.push(player.name);
+            this.userList.push({name:player.name,role:player.role,card:player.card})
+            //this.userList.push(player.name);
           });
           this._onRoomJoinedCallback(response.room);
           this._onRoomJoinedCallback = null;
@@ -56,7 +59,8 @@ class SocketConnecter {
 
       if (response.type === "user-joined") {
         console.log("neuer user joined",response)
-        this.userList.push(response.name);
+        //this.userList.push(response.name);
+        this.userList.push({name:response.user,role:response.role,card:response.card})
         console.log("Neuer Spieler:", response.name);
       }
 
@@ -67,6 +71,11 @@ class SocketConnecter {
             message: "Username already taken",
           });
         }       
+      }
+
+      if(response.type === "user-rejoined"){
+        this.userList = response.room
+        console.log("rejoined",this.userList)
       }
 
       if(response.type === "set-card"){
@@ -101,5 +110,11 @@ class SocketConnecter {
     this.connect(() => {
       socket.send(JSON.stringify({ type: "set card", card, user, roomId }));
     });
+  }
+
+  rejoin(user,roomId){
+    this.connect(()=>{
+      socket.send(JSON.stringify({type:"rejoin",user,roomId}))
+    })
   }
 }

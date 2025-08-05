@@ -11,7 +11,7 @@ export default{
         alert("type username in...")
       }else{
       this.$socketConnect.createRoom(this.username, (roomHash) => {
-       localStorage.setItem("rooms",JSON.stringify({[roomHash]:this.username}))
+       localStorage.setItem("rooms",JSON.stringify({[roomHash]:this.username,createdRoom:true}))
        this.$router.push({ name: 'GameRoom', params: { hash: roomHash }})
       })
     }}

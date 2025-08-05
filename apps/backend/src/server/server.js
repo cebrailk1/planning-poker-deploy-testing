@@ -10,12 +10,13 @@ wss.on("connection", function connection(ws) {
     if (type === "create room") {
       const roomId = roomHasher();
       rooms[roomId] = [];
-      rooms[roomId].push({ name: username, role: "Scrum Master", socket: ws });
+      rooms[roomId].push({ name: username, role: "Scrum Master", socket: ws,card:null });
       ws.send(
         JSON.stringify({
           type: "room-created",
           roomId,
           room: rooms[roomId],
+          card:null
         })
       );
     }
@@ -39,13 +40,15 @@ wss.on("connection", function connection(ws) {
         );
         return;
       }
-      rooms[roomId].push({ name: user, role: "Player", socket: ws });
+      rooms[roomId].push({ name: user, role: "Player", socket: ws,card:null });
+      console.log(rooms);
 
       ws.send(
         JSON.stringify({
           type: "room-joined",
           message: "User angelegt",
           room: rooms[roomId],
+          card:null
         })
       );
 
@@ -60,11 +63,24 @@ wss.on("connection", function connection(ws) {
               type: "user-joined",
               name: user,
               role: "Player",
+              card:null
             })
           );
         }
       });
     }
+
+    if(type==='rejoin'){
+      const {user,roomId} = JSON.parse(data)
+      const rejoinedPlayer = rooms[roomId].find((player)=>player.name === user)
+      if(rejoinedPlayer){
+        console.log("player exists in the room let him rejoin",user)
+        ws.send(JSON.stringify({type:"user-rejoined",room:rooms[roomId]}))
+      }
+    }
+
+
+
     if (type === "set card") {
       const { card, user, roomId } = JSON.parse(data);
 
@@ -83,7 +99,7 @@ wss.on("connection", function connection(ws) {
           player.socket.send(JSON.stringify({type:"set-card",card:currentPlayerChangedCard.card}))
         }
       })
-
+      console.log("room", rooms[roomId]);
     }
   });
 });
