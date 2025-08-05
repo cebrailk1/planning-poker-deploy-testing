@@ -25,7 +25,7 @@ export default {
     v-for="card in fibonacciCards"
     :key="card"
     @click="toggleCard(card)"
-    class="w-16 h-24 bg-white rounded-md border-2 border-gray-300 flex items-center justify-center cursor-pointer text-2xl font-bold text-gray-800 relative transition-all duration-200 hover:transform hover:-translate-y-1 hover:shadow-md active:scale-95"
+    class="w-16 h-24 bg-white rounded-md border-2 border-gray-300 flex items-center justify-center cursor-pointer text-2xl font-bold text-gray-800 relative transition-all duration-200 hover:transform hover:-translate-y-1 hover:shadow-md active:scale-95 m-5"
     :class="{
       'border-yellow-400 shadow-lg bg-yellow-50 z-10': selectedCard === card,
     }"
