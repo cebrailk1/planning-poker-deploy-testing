@@ -32,14 +32,15 @@ class SocketConnecter {
 
     socket.onmessage = (message) => {
       const response = JSON.parse(message.data);
-      console.log("Message from server:", response);
 
       if (response.type === "room-created") {
         roomHash = response.roomId;
-        //this.userList.push(response.room[0].name);
         this.userRole = response.room[0].role;
-          this.userList.push({name:response.room[0].name,role:response.room[0].role,card:response.room[0].card})
-          console.log("nach erstellen des raumes",this.userList)
+        this.userList.push({
+          name: response.room[0].name,
+          role: response.room[0].role,
+          card: response.room[0].card,
+        });
         if (this._onRoomCreatedCallback) {
           this._onRoomCreatedCallback(roomHash);
           this._onRoomCreatedCallback = null;
@@ -49,9 +50,11 @@ class SocketConnecter {
       if (response.type === "room-joined") {
         if (this._onRoomJoinedCallback) {
           response.room.forEach((player) => {
-            console.log("adding player to your list",player.name)
-            this.userList.push({name:player.name,role:player.role,card:player.card})
-            //this.userList.push(player.name);
+            this.userList.push({
+              name: player.name,
+              role: player.role,
+              card: player.card,
+            });
           });
           this._onRoomJoinedCallback(response.room);
           this._onRoomJoinedCallback = null;
@@ -59,10 +62,11 @@ class SocketConnecter {
       }
 
       if (response.type === "user-joined") {
-        console.log("neuer user joined",response)
-        //this.userList.push(response.name);
-        this.userList.push({name:response.name,role:response.role,card:response.card})
-        console.log("Neuer Spieler:", response.name,"updated lsit in socketconnecter",this.userList);
+        this.userList.push({
+          name: response.name,
+          role: response.role,
+          card: response.card,
+        });
       }
 
       if (response.type === "user-exists") {
@@ -71,24 +75,20 @@ class SocketConnecter {
             error: "user-exists",
             message: "Username already taken",
           });
-        }       
+        }
       }
 
-      if(response.type === "user-rejoined"){
-        this.userList = response.room
-        console.log("rejoined",this.userList)
+      if (response.type === "user-rejoined") {
+        this.userList = response.room;
       }
 
-      if(response.type === "set-card"){
-        console.log("Neue Karte gesetzt",response.card)
-        /* this.userList.push() */
-        this.userList.find((player)=>{
-          if(player.name===response.name){
-            player.card = response.card
-            console.log(player)
+      if (response.type === "set-card") {
+        this.userList.find((player) => {
+          if (player.name === response.name) {
+            player.card = response.card;
           }
-        })
-      }  
+        });
+      }
     };
 
     socket.onerror = (err) => {
@@ -120,9 +120,9 @@ class SocketConnecter {
     });
   }
 
-  rejoin(user,roomId){
-    this.connect(()=>{
-      socket.send(JSON.stringify({type:"rejoin",user,roomId}))
-    })
+  rejoin(user, roomId) {
+    this.connect(() => {
+      socket.send(JSON.stringify({ type: "rejoin", user, roomId }));
+    });
   }
 }

@@ -12,9 +12,7 @@ export default {
   },
   methods: {
     getUsernameForRoom() {
-      console.log("checking", this.$socketConnect.userList);
       const savedRooms = JSON.parse(localStorage.getItem("rooms"));
-      console.log(savedRooms.createdRoom === false);
       if (savedRooms[this.hash] && savedRooms.createdRoom === false) {
         localStorage.setItem;
         this.existingUser = savedRooms[this.hash];
@@ -22,7 +20,6 @@ export default {
         this.hasUsername = true;
       }
       this.initialJoin();
-      //rejoin funk hier aufrufen
     },
     UserJoinRoom() {
       this.$socketConnect.joinRoom(this.hash, this.username, (response) => {
@@ -36,12 +33,9 @@ export default {
           JSON.stringify({ [this.hash]: this.username })
         );
         this.initialJoin();
-        //this.getUsernameForRoom();
       });
-    }, //neue funktion aufrufen für initialjoin
+    },
     initialJoin() {
-      console.log("joining for the first time");
-      //console.log("checking",this.$socketConnect.userList)
       const savedRooms = JSON.parse(localStorage.getItem("rooms"));
       savedRooms.createdRoom = false;
       localStorage.setItem(
@@ -63,18 +57,14 @@ export default {
     },
   },
   computed: {
-    //const structure = [{},{},{}]
     userList() {
-      console.log("userliste wurde geupdated", this.$socketConnect.userList);
       return this.$socketConnect.userList;
     },
-    userCardsList(){
-      console.log("new card set")
-    return this.$socketConnect.userList
-      .filter(player => player.name !== this.existingUser)
-      .map(player => player.card);
-      
-    }
+    userCardsList() {
+      return this.$socketConnect.userList
+        .filter((player) => player.name !== this.existingUser)
+        .map((player) => player.card);
+    },
   },
   mounted() {
     this.getUsernameForRoom();
@@ -132,21 +122,21 @@ export default {
           :class="{
             'border-yellow-400 shadow-lg bg-yellow-50 z-10': userCard !== null,
           }"
-        >
-        </div>
+        ></div>
       </div>
     </div>
 
     <!--karten von allen anderen usern-->
     <div>
-      <div>
-
-      </div>
+      <div></div>
     </div>
 
     <div class="absolute w-full bottom-30">
       <div class="flex justify-center items-center">
-        <GameCards v-if="this.$socketConnect.userRole !=='Scrum Master'" @card="setCard"></GameCards>        
+        <GameCards
+          v-if="this.$socketConnect.userRole !== 'Scrum Master'"
+          @card="setCard"
+        ></GameCards>
       </div>
     </div>
   </div>

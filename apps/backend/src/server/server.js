@@ -10,13 +10,18 @@ wss.on("connection", function connection(ws) {
     if (type === "create room") {
       const roomId = roomHasher();
       rooms[roomId] = [];
-      rooms[roomId].push({ name: username, role: "Scrum Master", socket: ws,card:null });
+      rooms[roomId].push({
+        name: username,
+        role: "Scrum Master",
+        socket: ws,
+        card: null,
+      });
       ws.send(
         JSON.stringify({
           type: "room-created",
           roomId,
           room: rooms[roomId],
-          card:null
+          card: null,
         })
       );
     }
@@ -40,20 +45,24 @@ wss.on("connection", function connection(ws) {
         );
         return;
       }
-      rooms[roomId].push({ name: user, role: "Player", socket: ws,card:null });
-      console.log("Räume",rooms);
+      rooms[roomId].push({
+        name: user,
+        role: "Player",
+        socket: ws,
+        card: null,
+      });
+      console.log("Räume", rooms);
 
       ws.send(
         JSON.stringify({
           type: "room-joined",
           message: "User angelegt",
           room: rooms[roomId],
-          card:null
+          card: null,
         })
       );
 
       rooms[roomId].forEach((player) => {
-        console.log("player",player.name)
         if (
           player.socket !== ws &&
           player.socket.readyState === WebSocket.OPEN
@@ -64,50 +73,49 @@ wss.on("connection", function connection(ws) {
               type: "user-joined",
               name: user,
               role: "Player",
-              card:null
+              card: null,
             })
           );
         }
       });
     }
 
-    if(type==='rejoin'){
-      const {user,roomId} = JSON.parse(data)
-      const rejoinedPlayer = rooms[roomId].find((player)=>player.name === user)
-      if(rejoinedPlayer){
-        console.log("player exists in the room let him rejoin",user)
-        ws.send(JSON.stringify({type:"user-rejoined",room:rooms[roomId]}))
+    if (type === "rejoin") {
+      const { user, roomId } = JSON.parse(data);
+      const rejoinedPlayer = rooms[roomId].find(
+        (player) => player.name === user
+      );
+      if (rejoinedPlayer) {
+        ws.send(JSON.stringify({ type: "user-rejoined", room: rooms[roomId] }));
       }
     }
 
-
-
     if (type === "set card") {
       const { card, user, roomId } = JSON.parse(data);
-      console.log("user ändert karte ", user)
-      let currentPlayerChangedCard
-      rooms[roomId].forEach((player)=>{
-        if(player.name===user){
-          if(/*player.card &&  player.card === */ card===null){
-            player.card = null
-            console.log("benutzer ändert die karte wieder auf null",player.card)
-          }else{
-            player.card = card
-            console.log("benutzer hat karte auf die value gesetzt",player.card)
+      let currentPlayerChangedCard;
+      rooms[roomId].forEach((player) => {
+        if (player.name === user) {
+          if (card === null) {
+            player.card = null;
+          } else {
+            player.card = card;
           }
-          console.log("spieler karte",player.card)
         }
-         currentPlayerChangedCard= rooms[roomId].find((player)=>(player.name===user))
-
-      })
-      rooms[roomId].forEach((player)=>{
-        if(player.socket.readyState === WebSocket.OPEN){
-          console.log("sende karten value an spieler",player,"die value:",currentPlayerChangedCard.card)
-          player.socket.send(JSON.stringify({type:"set-card",name:user,card:currentPlayerChangedCard.card}))
+        currentPlayerChangedCard = rooms[roomId].find(
+          (player) => player.name === user
+        );
+      });
+      rooms[roomId].forEach((player) => {
+        if (player.socket.readyState === WebSocket.OPEN) {
+          player.socket.send(
+            JSON.stringify({
+              type: "set-card",
+              name: user,
+              card: currentPlayerChangedCard.card,
+            })
+          );
         }
-      })
-
-
+      });
     }
   });
 });
@@ -123,5 +131,3 @@ function checkUserExists(room, user) {
     }
   }
 }
-
-function createNewRoom() {}
