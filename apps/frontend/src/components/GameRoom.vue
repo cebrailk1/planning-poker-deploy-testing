@@ -133,7 +133,6 @@ export default {
             'border-yellow-400 shadow-lg bg-yellow-50 z-10': userCard !== null,
           }"
         >
-          {{ userCard }}
         </div>
       </div>
     </div>
