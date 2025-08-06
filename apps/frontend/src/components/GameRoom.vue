@@ -63,13 +63,14 @@ export default {
     },
   },
   computed: {
+    //const structure = [{},{},{}]
     userList() {
       console.log("userliste wurde geupdated", this.$socketConnect.userList);
       return this.$socketConnect.userList;
     },
-    userCards(){
-      console.log("new card set")
-     /*  let userCardsList =[]
+    userCardsList() {
+      console.log("new card set");
+      /*  let userCardsList =[]
       this.$socketConnect.userList.forEach((player)=>{
         if(player.name !== this.existingUser){
           console.log("not the same client")
@@ -77,18 +78,17 @@ export default {
           console.log(this.userCardsList)
         }
       })
-      return userCardsList 
+      return userCardsList
       return this.$socketConnect.userList.map((player)=>{
         if(player.name !==this.existingUser){
           player.card
         }
       })*/
 
- return this.$socketConnect.userList
-      .filter(player => player.name !== this.existingUser)
-      .map(player => player.card);
-      
-    }
+      return this.$socketConnect.userList
+        .filter((player) => player.name !== this.existingUser)
+        .map((player) => player.card);
+    },
   },
   mounted() {
     this.getUsernameForRoom();
@@ -140,26 +140,27 @@ export default {
       <div
         class="w-full max-w-6xl bg-green-700 border-[10px] border-yellow-400 rounded-full h-[500px] flex justify-center items-center"
       >
-      <div v-for="userCard in this.userCardsList"     class="w-16 h-24 bg-white rounded-md border-2 border-gray-300 flex items-center justify-center cursor-pointer text-2xl font-bold text-gray-800 relative transition-all duration-200 hover:transform hover:-translate-y-1 hover:shadow-md active:scale-95 m-3"
-      :class="{
-      'border-yellow-400 shadow-lg bg-yellow-50 z-10': userCard.card !==null,
-    }"
-      >{{ userCard.card }}
-</div>
+        <div
+          v-for="userCard in userCardsList"
+          class="w-16 h-24 bg-white rounded-md border-2 border-gray-300 flex items-center justify-center cursor-pointer text-2xl font-bold text-gray-800 relative transition-all duration-200 hover:transform hover:-translate-y-1 hover:shadow-md active:scale-95 m-3"
+          :class="{
+            'border-yellow-400 shadow-lg bg-yellow-50 z-10': userCard !== null,
+          }"
+        >
+          {{ userCard }}
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!--karten von allen anderen usern-->
-  <div>
+    <!--karten von allen anderen usern-->
     <div>
-      
+      <div></div>
     </div>
-  </div>
 
-  <div class="absolute w-full bottom-30">
-    <div class="flex justify-center items-center">
-      <GameCards @card="setCard"></GameCards>
-      <!--vifuserrole!==scrum master-->
+    <div class="absolute w-full bottom-30">
+      <div class="flex justify-center items-center">
+        <GameCards @card="setCard"></GameCards>
+        <!--vifuserrole!==scrum master-->
       </div>
     </div>
   </div>
