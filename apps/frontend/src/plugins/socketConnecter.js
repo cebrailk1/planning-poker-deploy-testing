@@ -81,6 +81,13 @@ class SocketConnecter {
 
       if(response.type === "set-card"){
         console.log("Neue Karte gesetzt",response.card)
+        /* this.userList.push() */
+        this.userList.find((player)=>{
+          if(player.name===response.name){
+            player.card = response.card
+            console.log(player)
+          }
+        })
       }  
     };
 

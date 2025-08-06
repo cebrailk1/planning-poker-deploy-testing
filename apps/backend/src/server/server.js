@@ -97,7 +97,7 @@ wss.on("connection", function connection(ws) {
         const currentPlayerChangedCard= rooms[roomId].find((player)=>(player.name===user))
 
         if(player.socket.readyState===WebSocket.OPEN){
-          player.socket.send(JSON.stringify({type:"set-card",card:currentPlayerChangedCard.card}))
+          player.socket.send(JSON.stringify({type:"set-card",name:user,card:currentPlayerChangedCard.card}))
         }
       })
       console.log("room", rooms[roomId]);
