@@ -139,13 +139,14 @@ export default {
 
     <!--karten von allen anderen usern-->
     <div>
-      <div></div>
+      <div>
+
+      </div>
     </div>
 
     <div class="absolute w-full bottom-30">
       <div class="flex justify-center items-center">
-        <GameCards @card="setCard"></GameCards>
-        <!--vifuserrole!==scrum master-->
+        <GameCards v-if="this.$socketConnect.userRole !=='Scrum Master'" @card="setCard"></GameCards>        
       </div>
     </div>
   </div>

@@ -37,7 +37,7 @@ class SocketConnecter {
       if (response.type === "room-created") {
         roomHash = response.roomId;
         //this.userList.push(response.room[0].name);
-        //this.userRole = response.room[0].role;
+        this.userRole = response.room[0].role;
           this.userList.push({name:response.room[0].name,role:response.room[0].role,card:response.room[0].card})
           console.log("nach erstellen des raumes",this.userList)
         if (this._onRoomCreatedCallback) {
