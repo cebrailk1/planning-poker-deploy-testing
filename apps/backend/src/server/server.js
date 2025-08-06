@@ -84,23 +84,30 @@ wss.on("connection", function connection(ws) {
 
     if (type === "set card") {
       const { card, user, roomId } = JSON.parse(data);
-
+      console.log("user ändert karte ", user)
+      let currentPlayerChangedCard
       rooms[roomId].forEach((player)=>{
         if(player.name===user){
-          if(player.card && player.card === card){
+          if(/*player.card &&  player.card === */ card===null){
             player.card = null
+            console.log("benutzer ändert die karte wieder auf null",player.card)
           }else{
-            player["card"] = card
+            player.card = card
+            console.log("benutzer hat karte auf die value gesetzt",player.card)
           }
           console.log("spieler karte",player.card)
         }
-        const currentPlayerChangedCard= rooms[roomId].find((player)=>(player.name===user))
+         currentPlayerChangedCard= rooms[roomId].find((player)=>(player.name===user))
 
-        if(player.socket.readyState===WebSocket.OPEN){
+      })
+      rooms[roomId].forEach((player)=>{
+        if(player.socket.readyState === WebSocket.OPEN){
+          console.log("sende karten value an spieler",player,"die value:",currentPlayerChangedCard.card)
           player.socket.send(JSON.stringify({type:"set-card",name:user,card:currentPlayerChangedCard.card}))
         }
       })
-      console.log("room", rooms[roomId]);
+
+
     }
   });
 });

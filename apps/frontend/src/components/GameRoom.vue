@@ -68,27 +68,13 @@ export default {
       console.log("userliste wurde geupdated", this.$socketConnect.userList);
       return this.$socketConnect.userList;
     },
-    userCardsList() {
-      console.log("new card set");
-      /*  let userCardsList =[]
-      this.$socketConnect.userList.forEach((player)=>{
-        if(player.name !== this.existingUser){
-          console.log("not the same client")
-          userCardsList.push(player.card)
-          console.log(this.userCardsList)
-        }
-      })
-      return userCardsList
-      return this.$socketConnect.userList.map((player)=>{
-        if(player.name !==this.existingUser){
-          player.card
-        }
-      })*/
-
-      return this.$socketConnect.userList
-        .filter((player) => player.name !== this.existingUser)
-        .map((player) => player.card);
-    },
+    userCardsList(){
+      console.log("new card set")
+    return this.$socketConnect.userList
+      .filter(player => player.name !== this.existingUser)
+      .map(player => player.card);
+      
+    }
   },
   mounted() {
     this.getUsernameForRoom();
