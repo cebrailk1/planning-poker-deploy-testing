@@ -86,7 +86,8 @@ wss.on("connection", function connection(ws) {
         (player) => player.name === user
       );
       if (rejoinedPlayer) {
-        ws.send(JSON.stringify({ type: "user-rejoined", room: rooms[roomId] }));
+        rejoinedPlayer.socket = ws
+        ws.send(JSON.stringify({ type: "user-rejoined", room: rooms[roomId],role:rejoinedPlayer.role }));
       }
     }
 

@@ -80,6 +80,7 @@ class SocketConnecter {
 
       if (response.type === "user-rejoined") {
         this.userList = response.room;
+        this.userRole = response.role
       }
 
       if (response.type === "set-card") {
@@ -124,5 +125,11 @@ class SocketConnecter {
     this.connect(() => {
       socket.send(JSON.stringify({ type: "rejoin", user, roomId }));
     });
+  }
+
+  startRound(roomId){
+    this.connect(()=>{
+      socket.send(JSON.stringify({type:"start round",roomId}))
+    })
   }
 }
