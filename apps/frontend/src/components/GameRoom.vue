@@ -96,7 +96,7 @@ export default {
 
     <!--Oben links     absolute top-4 left-4 bg-green-800 text-white rounded-xl p-6 w-full max-w-2xl shadow-xl space-y-4  -->
     <div
-      class="absolute top-4 left-4 bg-green-900 text-sm bg-green-900 bg-opacity-80 p-4 rounded-lg shadow-lg w-80 space-y-3"
+      class="absolute top-4 left-4 text-sm bg-green-900 bg-opacity-80 p-4 rounded-lg shadow-lg w-80 space-y-3"
     >
       <div>
         <h2 class="text-2xl font-semibold mb-2">Spieler im Raum:</h2>
