@@ -127,9 +127,4 @@ class SocketConnecter {
     });
   }
 
-  startRound(roomId){
-    this.connect(()=>{
-      socket.send(JSON.stringify({type:"start round",roomId}))
-    })
-  }
 }
