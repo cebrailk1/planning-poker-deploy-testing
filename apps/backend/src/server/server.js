@@ -9,8 +9,11 @@ wss.on("connection", function connection(ws) {
 
     if (type === "create room") {
       const roomId = roomHasher();
-      rooms[roomId] = [];
-      rooms[roomId].push({
+      rooms[roomId] = {
+        players: [],
+        roundStarted: false,
+      };
+      rooms[roomId].players.push({
         name: username,
         role: "Scrum Master",
         socket: ws,
@@ -45,7 +48,7 @@ wss.on("connection", function connection(ws) {
         );
         return;
       }
-      rooms[roomId].push({
+      rooms[roomId].players.push({
         name: user,
         role: "Player",
         socket: ws,
@@ -62,7 +65,7 @@ wss.on("connection", function connection(ws) {
         })
       );
 
-      rooms[roomId].forEach((player) => {
+      rooms[roomId].players.forEach((player) => {
         if (
           player.socket !== ws &&
           player.socket.readyState === WebSocket.OPEN
@@ -82,19 +85,27 @@ wss.on("connection", function connection(ws) {
 
     if (type === "rejoin") {
       const { user, roomId } = JSON.parse(data);
-      const rejoinedPlayer = rooms[roomId].find(
+      const rejoinedPlayer = rooms[roomId].players.find(
         (player) => player.name === user
       );
       if (rejoinedPlayer) {
-        rejoinedPlayer.socket = ws
-        ws.send(JSON.stringify({ type: "user-rejoined", room: rooms[roomId],role:rejoinedPlayer.role }));
+        rejoinedPlayer.socket = ws;
+        console.log("rejoining...", rooms[roomId]);
+        console.log(rooms[roomId]);
+        ws.send(
+          JSON.stringify({
+            type: "user-rejoined",
+            room: rooms[roomId],
+            role: rejoinedPlayer.role,
+          })
+        );
       }
     }
 
     if (type === "set card") {
       const { card, user, roomId } = JSON.parse(data);
       let currentPlayerChangedCard;
-      rooms[roomId].forEach((player) => {
+      rooms[roomId].players.forEach((player) => {
         if (player.name === user) {
           if (card === null) {
             player.card = null;
@@ -102,17 +113,55 @@ wss.on("connection", function connection(ws) {
             player.card = card;
           }
         }
-        currentPlayerChangedCard = rooms[roomId].find(
+        currentPlayerChangedCard = rooms[roomId].players.find(
           (player) => player.name === user
         );
       });
-      rooms[roomId].forEach((player) => {
+      rooms[roomId].players.forEach((player) => {
         if (player.socket.readyState === WebSocket.OPEN) {
           player.socket.send(
             JSON.stringify({
               type: "set-card",
               name: user,
               card: currentPlayerChangedCard.card,
+            })
+          );
+        }
+      });
+    }
+
+    if (type === "start round") {
+      const { roomId } = JSON.parse(data);
+
+      rooms[roomId].roundStarted = true;
+      rooms[roomId].players.forEach((player) => {
+        player.card = null;
+      });
+      console.log("runde startet alle Karten auf null", rooms[roomId]);
+
+      rooms[roomId].players.forEach((player) => {
+        if (player.socket.readyState === WebSocket.OPEN) {
+          player.socket.send(
+            JSON.stringify({
+              type: "started-round",
+              roundStarted: rooms[roomId].roundStarted,
+            })
+          );
+        }
+      });
+    }
+
+    if (type === "end round") {
+      const { roomId } = JSON.parse(data);
+
+      rooms[roomId].roundStarted = false;
+
+      rooms[roomId].players.forEach((player) => {
+        if (player.socket.readyState === WebSocket.OPEN) {
+          player.socket.send(
+            JSON.stringify({
+              type: "ended-round",
+              roundEnded: rooms[roomId].roundStarted,
             })
           );
         }
@@ -126,9 +175,11 @@ function roomHasher() {
 }
 
 function checkUserExists(room, user) {
-  for (let e of room) {
+  for (let e of room.players) {
     if (e.name === user) {
       return true;
     }
   }
 }
+
+function sendToEveryClient() {}

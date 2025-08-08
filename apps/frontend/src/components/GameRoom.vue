@@ -56,6 +56,19 @@ export default {
       const savedRooms = JSON.parse(localStorage.getItem("rooms"));
       this.$socketConnect.setCard(card, savedRooms[this.hash], this.hash);
     },
+
+    startRound(){
+      if(this.$socketConnect.roundStarted){
+        alert("Your Round already started")
+      }else{
+        this.$socketConnect.startRound(this.hash)
+      }
+    },
+    endRound(){
+      if(this.$socketConnect.roundStarted){
+        this.$socketConnect.endRound(this.hash)
+      }
+    }
   },
   computed: {
     userList() {
@@ -76,6 +89,12 @@ export default {
     v-else
     class="relative min-h-screen bg-green-800 text-white overflow-hidden"
   >
+
+  <div v-if="this.$socketConnect.userRole === 'Scrum Master'" class="absolute top-40">
+    <button class="bg-yellow-200 p-1.5 rounded-2xl text-black" @click="startRound">Start new Game</button>
+    <button class="bg-red-400 p-1.5 rounded-2xl text-black" @click="endRound">End Round</button>
+  </div>
+
     <!--Info-Panel oben rechts-->
     <div
       class="absolute top-4 right-3 bg-green-900 bg-opacity-80 p-4 rounded-lg shadow-lg w-80 space-y-3 text-sm"

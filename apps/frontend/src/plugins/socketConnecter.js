@@ -15,6 +15,8 @@ class SocketConnecter {
     this._onRoomJoinedCallback = null;
     this.userList = []; //[{name,role,card}]
     this.userRole = null;
+    this.roundStarted = false;
+    this.revealCards = false;
     return reactive(this);
   }
 
@@ -35,11 +37,12 @@ class SocketConnecter {
 
       if (response.type === "room-created") {
         roomHash = response.roomId;
-        this.userRole = response.room[0].role;
+        console.log(response.room.players[0].role);
+        this.userRole = response.room.players[0].role;
         this.userList.push({
-          name: response.room[0].name,
-          role: response.room[0].role,
-          card: response.room[0].card,
+          name: response.room.players[0].name,
+          role: response.room.players[0].role,
+          card: response.room.players[0].card,
         });
         if (this._onRoomCreatedCallback) {
           this._onRoomCreatedCallback(roomHash);
@@ -49,7 +52,7 @@ class SocketConnecter {
 
       if (response.type === "room-joined") {
         if (this._onRoomJoinedCallback) {
-          response.room.forEach((player) => {
+          response.room.players.forEach((player) => {
             this.userList.push({
               name: player.name,
               role: player.role,
@@ -79,8 +82,9 @@ class SocketConnecter {
       }
 
       if (response.type === "user-rejoined") {
-        this.userList = response.room;
-        this.userRole = response.role
+        this.userList = response.room.players;
+        this.userRole = response.role;
+        this.roundStarted = response.room.roundStarted;
       }
 
       if (response.type === "set-card") {
@@ -89,6 +93,15 @@ class SocketConnecter {
             player.card = response.card;
           }
         });
+      }
+
+      if (response.type === "started-round") {
+        this.roundStarted = response.roundStarted;
+      }
+
+      if (response.type === "ended-round") {
+        this.roundStarted = response.roundEnded;
+        this.revealCards = true;
       }
     };
 
@@ -126,5 +139,14 @@ class SocketConnecter {
       socket.send(JSON.stringify({ type: "rejoin", user, roomId }));
     });
   }
-
+  startRound(roomId) {
+    this.connect(() => {
+      socket.send(JSON.stringify({ type: "start round", roomId }));
+    });
+  }
+  endRound(roomId) {
+    this.connect(() => {
+      socket.send(JSON.stringify({ type: "end round", roomId }));
+    });
+  }
 }

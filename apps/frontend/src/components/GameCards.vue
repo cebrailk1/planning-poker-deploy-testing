@@ -9,14 +9,16 @@ export default {
   },
   methods: {
     toggleCard(card) {
+      console.log(this.$socketConnect.roundStarted)
+     if(this.$socketConnect.roundStarted){
       if (this.selectedCard === card) {
         this.selectedCard = null;
         this.$emit("card", null);
       } else {
         this.selectedCard = card;
         this.$emit("card", card);
-      }
-    },
+      }}
+    }
   },
 };
 </script>
