@@ -97,6 +97,8 @@ class SocketConnecter {
 
       if (response.type === "started-round") {
         this.roundStarted = response.roundStarted;
+        this.revealCards = false
+        this.userList = response.room
       }
 
       if (response.type === "ended-round") {
