@@ -1,0 +1,11 @@
+import { createApp } from 'vue'
+import './style.css'
+import App from './App.vue'
+import socketConnecter from './plugins/socketConnecter'
+import router from './router/router'
+
+const app = createApp(App)
+
+app.use(socketConnecter)
+app.use(router)
+app.mount('#app')
