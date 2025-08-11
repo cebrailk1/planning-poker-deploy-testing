@@ -145,6 +145,7 @@ wss.on("connection", function connection(ws) {
             JSON.stringify({
               type: "started-round",
               roundStarted: rooms[roomId].roundStarted,
+              room:rooms[roomId].players
             })
           );
         }

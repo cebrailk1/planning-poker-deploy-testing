@@ -20,6 +20,13 @@ export default {
       }}
     }
   },
+  watch: {
+    "$socketConnect.roundStarted"(newVal) {
+      if (newVal) {
+        this.selectedCard = null;
+      }
+    }
+  }
 };
 </script>
 <template>
