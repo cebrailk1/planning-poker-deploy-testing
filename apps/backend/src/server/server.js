@@ -1,7 +1,7 @@
 import WebSocket, { WebSocketServer } from "ws";
 
 const wss = new WebSocketServer({ port: 8080 });
-let rooms = {};
+let rooms = {};//neue struktur  {hash:{player:[],roundstarted:bool}}
 wss.on("connection", function connection(ws) {
   ws.on("error", console.error);
   ws.on("message", function message(data, isBinary) {
@@ -12,6 +12,8 @@ wss.on("connection", function connection(ws) {
       rooms[roomId] = {
         players: [],
         roundStarted: false,
+        stories :[],
+        stagedStory:''
       };
       rooms[roomId].players.push({
         name: username,
@@ -62,6 +64,7 @@ wss.on("connection", function connection(ws) {
           message: "User angelegt",
           room: rooms[roomId],
           card: null,
+          stories:rooms[roomId].stories
         })
       );
 
@@ -97,6 +100,8 @@ wss.on("connection", function connection(ws) {
             type: "user-rejoined",
             room: rooms[roomId],
             role: rejoinedPlayer.role,
+            stories:rooms[roomId].stories,
+            stagedStory: rooms[roomId].stagedStory
           })
         );
       }
@@ -168,6 +173,36 @@ wss.on("connection", function connection(ws) {
         }
       });
     }
+
+    if(type==="set story"){
+      const {story,roomId} = JSON.parse(data)
+
+      //rooms[roomId].stories = []
+      rooms[roomId].stories.push(story)
+      console.log(rooms[roomId].stories)
+      rooms[roomId].players.forEach((player)=>{
+        if(player.socket.readyState === WebSocket.OPEN){
+          player.socket.send(JSON.stringify({
+            type:"set-new-story",
+            stories:rooms[roomId].stories
+          }))
+        }
+      })
+    }
+
+    if(type === "stage story"){
+      const {story,roomId} = JSON.parse(data)
+
+      rooms[roomId].stagedStory = story
+      console.log(rooms[roomId].stagedStory)
+      rooms[roomId].players.forEach((player)=>{
+        if(player.socket.readyState === WebSocket.OPEN){
+          player.socket.send(JSON.stringify({type:"story-staged",story:rooms[roomId].stagedStory}))
+        }
+      })
+
+    }
+
   });
 });
 

@@ -1,21 +1,22 @@
 <script>
 import GameCards from "./GameCards.vue";
 import OpponentCard from "./OpponentCard.vue";
+import StoryBoard from "./StoryBoard.vue";
 export default {
   props: { hash: String },
-  components: { GameCards,OpponentCard },
+  components: { GameCards,OpponentCard,StoryBoard },
   data() {
     return {
       hasUsername: false,
       username: "",
       existingUser: null,
+      stagedStory:null
     };
   },
   methods: {
     getUsernameForRoom() {
       const savedRooms = JSON.parse(localStorage.getItem("rooms"));
       if (savedRooms[this.hash] && savedRooms.createdRoom === false) {
-        localStorage.setItem;
         this.existingUser = savedRooms[this.hash];
         this.$socketConnect.rejoin(this.existingUser, this.hash);
         this.hasUsername = true;
@@ -37,7 +38,7 @@ export default {
       });
     },
     initialJoin() {
-      const savedRooms = JSON.parse(localStorage.getItem("rooms"));
+     const savedRooms = JSON.parse(localStorage.getItem("rooms"));
       savedRooms.createdRoom = false;
       localStorage.setItem(
         "rooms",
@@ -60,6 +61,8 @@ export default {
     startRound(){
       if(this.$socketConnect.roundStarted){
         alert("Your Round already started")
+      }else if(this.$socketConnect.stagedStory===''){
+        alert("Choose a Story to start a new Round")
       }else{
         this.$socketConnect.startRound(this.hash)
       }
@@ -68,6 +71,10 @@ export default {
       if(this.$socketConnect.roundStarted){
         this.$socketConnect.endRound(this.hash)
       }
+    },
+    setStageStory(story){
+      this.stagedStory = story
+      this.$socketConnect.stageStory(this.stagedStory,this.hash)
     }
   },
   computed: {
@@ -89,10 +96,19 @@ export default {
     v-else
     class="relative min-h-screen bg-green-800 text-white overflow-hidden"
   >
+<header class="flex justify-center items-center w-full py-4 bg-green-900">
+  <h1 class="text-xl font-bold text-white">Current Story: {{ this.$socketConnect.stagedStory }}</h1>
+  <p v-if="this.$socketConnect.roundStarted" class="text-xl">Runde hat gestartet</p>
+</header>
 
   <div v-if="this.$socketConnect.userRole === 'Scrum Master'" class="absolute top-40">
     <button class="bg-yellow-200 p-1.5 rounded-2xl text-black" @click="startRound">Start new Game</button>
     <button class="bg-red-400 p-1.5 rounded-2xl text-black" @click="endRound">End Round</button>
+  </div>
+  
+  <!--Storyboard-->
+  <div class="absolute top-80">
+    <StoryBoard :hash="this.hash" @stage-story="setStageStory"></StoryBoard>
   </div>
 
     <!--Info-Panel oben rechts-->
@@ -113,7 +129,7 @@ export default {
       </div>
     </div>
 
-    <!--Oben links     absolute top-4 left-4 bg-green-800 text-white rounded-xl p-6 w-full max-w-2xl shadow-xl space-y-4  -->
+    <!--Oben links-->
     <div
       class="absolute top-4 left-4 text-sm bg-green-900 bg-opacity-80 p-4 rounded-lg shadow-lg w-80 space-y-3"
     >

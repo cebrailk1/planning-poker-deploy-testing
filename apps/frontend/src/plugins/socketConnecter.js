@@ -11,10 +11,12 @@ let roomHash;
 
 class SocketConnecter {
   constructor() {
-    this._onRoomCreatedCallback = null;
-    this._onRoomJoinedCallback = null;
+    this.onRoomCreatedCallback = null;
+    this.onRoomJoinedCallback = null;
     this.userList = []; //[{name,role,card}]
     this.userRole = null;
+    this.storyList = [];
+    this.stagedStory = '';
     this.roundStarted = false;
     this.revealCards = false;
     return reactive(this);
@@ -44,14 +46,14 @@ class SocketConnecter {
           role: response.room.players[0].role,
           card: response.room.players[0].card,
         });
-        if (this._onRoomCreatedCallback) {
-          this._onRoomCreatedCallback(roomHash);
-          this._onRoomCreatedCallback = null;
+        if (this.onRoomCreatedCallback) {
+          this.onRoomCreatedCallback(roomHash);
+          this.onRoomCreatedCallback = null;
         }
       }
 
       if (response.type === "room-joined") {
-        if (this._onRoomJoinedCallback) {
+        if (this.onRoomJoinedCallback) {
           response.room.players.forEach((player) => {
             this.userList.push({
               name: player.name,
@@ -59,8 +61,9 @@ class SocketConnecter {
               card: player.card,
             });
           });
-          this._onRoomJoinedCallback(response.room);
-          this._onRoomJoinedCallback = null;
+          this.storyList = response.stories
+          this.onRoomJoinedCallback(response.room);
+          this.onRoomJoinedCallback = null;
         }
       }
 
@@ -73,8 +76,8 @@ class SocketConnecter {
       }
 
       if (response.type === "user-exists") {
-        if (this._onRoomJoinedCallback) {
-          this._onRoomJoinedCallback({
+        if (this.onRoomJoinedCallback) {
+          this.onRoomJoinedCallback({
             error: "user-exists",
             message: "Username already taken",
           });
@@ -85,6 +88,8 @@ class SocketConnecter {
         this.userList = response.room.players;
         this.userRole = response.role;
         this.roundStarted = response.room.roundStarted;
+        this.storyList = response.stories
+        this.stagedStory = response.stagedStory
       }
 
       if (response.type === "set-card") {
@@ -105,6 +110,16 @@ class SocketConnecter {
         this.roundStarted = response.roundEnded;
         this.revealCards = true;
       }
+
+      if(response.type === "set-new-story"){
+        this.storyList = response.stories
+      }
+
+      if(response.type === "story-staged"){
+        this.stagedStory = response.story
+        console.log("Story staged to everyone",this.stagedStory)
+      }
+
     };
 
     socket.onerror = (err) => {
@@ -117,14 +132,14 @@ class SocketConnecter {
   }
 
   createRoom(username, callback) {
-    this._onRoomCreatedCallback = callback;
+    this.onRoomCreatedCallback = callback;
     this.connect(() => {
       socket.send(JSON.stringify({ type: "create room", username }));
     });
   }
 
   joinRoom(roomId, user, callback) {
-    this._onRoomJoinedCallback = callback;
+    this.onRoomJoinedCallback = callback;
     this.connect(() => {
       socket.send(JSON.stringify({ type: "join room", roomId, user }));
     });
@@ -150,5 +165,15 @@ class SocketConnecter {
     this.connect(() => {
       socket.send(JSON.stringify({ type: "end round", roomId }));
     });
+  }
+  addStory(story,roomId){
+    this.connect(()=>{
+      socket.send(JSON.stringify({type:"set story",story,roomId}))
+    })
+  }
+  stageStory(story,roomId){
+    this.connect(()=>{
+      socket.send(JSON.stringify({type:"stage story",story,roomId}))
+    })
   }
 }

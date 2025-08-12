@@ -15,7 +15,7 @@ export default{
        this.$router.push({ name: 'GameRoom', params: { hash: roomHash }})
       })
     }}
-  }
+  }//die funktionalität als watcher einbauen
 }
 </script>
 
