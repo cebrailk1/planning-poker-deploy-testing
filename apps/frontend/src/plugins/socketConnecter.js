@@ -144,6 +144,9 @@ class SocketConnecter {
         console.log("spieler left");
         this.userList = response.room.players;
       }
+      if (response.type === "user-list-update") {
+        this.userList = response.players;
+      }
     };
 
     socket.onerror = (err) => {
@@ -209,6 +212,18 @@ class SocketConnecter {
   leaveRoom(roomId, user) {
     this.connect(() => {
       socket.send(JSON.stringify({ type: "leave room", roomId, user }));
+    });
+  }
+  changeName(roomId, oldName, newName) {
+    this.connect(() => {
+      socket.send(
+        JSON.stringify({
+          type: "change-name",
+          roomId,
+          oldName,
+          newName,
+        })
+      );
     });
   }
 }
