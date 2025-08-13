@@ -2,7 +2,6 @@ import { reactive } from "vue";
 
 export default {
   install: (app) => {
-    //const socketConnecter = reactive(new SocketConnecter())
     app.config.globalProperties.$socketConnect = new SocketConnecter();
   },
 };
@@ -138,7 +137,7 @@ class SocketConnecter {
       if (response.type === "left") {
         console.log("YOU left");
         this.gameLeft = true;
-        socket.onclose()
+        socket.onclose();
       }
 
       if (response.type === "user-left") {
