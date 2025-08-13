@@ -1,21 +1,24 @@
 <script>
+import DoneStories from "./DoneStories.vue";
 import GameCards from "./GameCards.vue";
 import OpponentCard from "./OpponentCard.vue";
+import StoryBoard from "./StoryBoard.vue";
 export default {
   props: { hash: String },
-  components: { GameCards,OpponentCard },
+  components: { GameCards,OpponentCard,StoryBoard,DoneStories },
   data() {
     return {
       hasUsername: false,
       username: "",
       existingUser: null,
+      stagedStory:null,
+      storyPoints:null,
     };
   },
   methods: {
     getUsernameForRoom() {
       const savedRooms = JSON.parse(localStorage.getItem("rooms"));
       if (savedRooms[this.hash] && savedRooms.createdRoom === false) {
-        localStorage.setItem;
         this.existingUser = savedRooms[this.hash];
         this.$socketConnect.rejoin(this.existingUser, this.hash);
         this.hasUsername = true;
@@ -37,7 +40,7 @@ export default {
       });
     },
     initialJoin() {
-      const savedRooms = JSON.parse(localStorage.getItem("rooms"));
+     const savedRooms = JSON.parse(localStorage.getItem("rooms"));
       savedRooms.createdRoom = false;
       localStorage.setItem(
         "rooms",
@@ -60,14 +63,25 @@ export default {
     startRound(){
       if(this.$socketConnect.roundStarted){
         alert("Your Round already started")
+      }else if(this.$socketConnect.stagedStory===''){
+        alert("Choose a Story to start a new Round")
       }else{
         this.$socketConnect.startRound(this.hash)
       }
     },
     endRound(){
-      if(this.$socketConnect.roundStarted){
-        this.$socketConnect.endRound(this.hash)
+      console.log(this.storyPoints)
+      if(this.$socketConnect.roundStarted && this.storyPoints){
+        console.log("ending round")
+        this.$socketConnect.endRound(this.hash,this.storyPoints,this.stagedStory)
       }
+    },
+    setStageStory(story){
+      this.stagedStory = story
+      this.$socketConnect.stageStory(this.stagedStory,this.hash)
+    },
+    startDiscussion(){
+      this.$socketConnect.startDiscussion(this.hash)
     }
   },
   computed: {
@@ -89,11 +103,37 @@ export default {
     v-else
     class="relative min-h-screen bg-green-800 text-white overflow-hidden"
   >
+<header class="flex justify-center items-center w-full py-4 bg-green-900">
+  <h1 class="text-xl font-bold text-white">Current Story: {{ this.$socketConnect.stagedStory.name }}</h1>
+  <p v-if="this.$socketConnect.roundStarted" class="text-xl">Runde hat gestartet</p>
+</header>
 
-  <div v-if="this.$socketConnect.userRole === 'Scrum Master'" class="absolute top-40">
+  <div v-if="this.$socketConnect.userRole === 'Scrum Master'" class="absolute top-60 m-10">
     <button class="bg-yellow-200 p-1.5 rounded-2xl text-black" @click="startRound">Start new Game</button>
     <button class="bg-red-400 p-1.5 rounded-2xl text-black" @click="endRound">End Round</button>
+    <button class="p-1.5" @click="startDiscussion">Start Discussion</button>
+    <select
+    v-if="this.$socketConnect.discussionPhase"
+    v-model="this.storyPoints"
+        class="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow cursor-pointer appearance-none">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="5">5</option>
+        <option value="8">8</option>
+        <option value="13">13</option>
+    </select>
   </div>
+  
+  <!--Storyboard-->
+  <div class="absolute top-80">
+    <StoryBoard :hash="this.hash" @stage-story="setStageStory"></StoryBoard>
+  </div>
+
+  <div class="absolute top-80 right-1.5">
+    <DoneStories></DoneStories>
+  </div>
+
 
     <!--Info-Panel oben rechts-->
     <div
@@ -113,7 +153,7 @@ export default {
       </div>
     </div>
 
-    <!--Oben links     absolute top-4 left-4 bg-green-800 text-white rounded-xl p-6 w-full max-w-2xl shadow-xl space-y-4  -->
+    <!--Oben links-->
     <div
       class="absolute top-4 left-4 text-sm bg-green-900 bg-opacity-80 p-4 rounded-lg shadow-lg w-80 space-y-3"
     >
