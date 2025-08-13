@@ -64,6 +64,7 @@ class SocketConnecter {
             });
           });
           this.storyList = response.stories
+          this.stagedStory = response.stagedStory 
           this.onRoomJoinedCallback(response.room);
           this.onRoomJoinedCallback = null;
         }

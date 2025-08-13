@@ -66,7 +66,9 @@ wss.on("connection", function connection(ws) {
           message: "User angelegt",
           room: rooms[roomId],
           card: null,
-          stories:rooms[roomId].stories
+          stories:rooms[roomId].stories,
+          stagedStory: rooms[roomId].stagedStory
+
         })
       );
 
