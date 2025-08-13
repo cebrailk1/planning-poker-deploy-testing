@@ -114,6 +114,7 @@ class SocketConnecter {
         //this.revealCards = true;
         this.discussionPhase = false
         this.discussedStories = response.discussedStories
+        this.stagedStory = ''
       }
 
       if(response.type === "set-new-story"){
