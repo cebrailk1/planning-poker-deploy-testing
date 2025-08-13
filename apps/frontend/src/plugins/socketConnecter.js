@@ -2,7 +2,6 @@ import { reactive } from "vue";
 
 export default {
   install: (app) => {
-    //const socketConnecter = reactive(new SocketConnecter())
     app.config.globalProperties.$socketConnect = new SocketConnecter();
   },
 };
@@ -97,13 +96,16 @@ class SocketConnecter {
 
       if (response.type === "started-round") {
         this.roundStarted = response.roundStarted;
-        this.revealCards = false
-        this.userList = response.room
+        this.revealCards = false;
+        this.userList = response.room;
       }
 
       if (response.type === "ended-round") {
         this.roundStarted = response.roundEnded;
         this.revealCards = true;
+      }
+      if (response.type === "user-list-update") {
+        this.userList = response.players;
       }
     };
 
@@ -149,6 +151,18 @@ class SocketConnecter {
   endRound(roomId) {
     this.connect(() => {
       socket.send(JSON.stringify({ type: "end round", roomId }));
+    });
+  }
+  changeName(roomId, oldName, newName) {
+    this.connect(() => {
+      socket.send(
+        JSON.stringify({
+          type: "change-name",
+          roomId,
+          oldName,
+          newName,
+        })
+      );
     });
   }
 }
