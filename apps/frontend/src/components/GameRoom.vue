@@ -108,7 +108,7 @@ export default {
   <p v-if="this.$socketConnect.roundStarted" class="text-xl">Runde hat gestartet</p>
 </header>
 
-  <div v-if="this.$socketConnect.userRole === 'Scrum Master'" class="absolute top-40">
+  <div v-if="this.$socketConnect.userRole === 'Scrum Master'" class="absolute top-60 m-10">
     <button class="bg-yellow-200 p-1.5 rounded-2xl text-black" @click="startRound">Start new Game</button>
     <button class="bg-red-400 p-1.5 rounded-2xl text-black" @click="endRound">End Round</button>
     <button class="p-1.5" @click="startDiscussion">Start Discussion</button>
