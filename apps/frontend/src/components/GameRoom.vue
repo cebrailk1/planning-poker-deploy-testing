@@ -3,12 +3,14 @@ import GameCards from "./GameCards.vue";
 import OpponentCard from "./OpponentCard.vue";
 export default {
   props: { hash: String },
-  components: { GameCards,OpponentCard },
+  components: { GameCards, OpponentCard },
   data() {
     return {
       hasUsername: false,
       username: "",
       existingUser: null,
+      editMode: false,
+      wigglePen: false,
     };
   },
   methods: {
@@ -57,18 +59,45 @@ export default {
       this.$socketConnect.setCard(card, savedRooms[this.hash], this.hash);
     },
 
-    startRound(){
-      if(this.$socketConnect.roundStarted){
-        alert("Your Round already started")
-      }else{
-        this.$socketConnect.startRound(this.hash)
+    startRound() {
+      if (this.$socketConnect.roundStarted) {
+        alert("Your Round already started");
+      } else {
+        this.$socketConnect.startRound(this.hash);
       }
     },
-    endRound(){
-      if(this.$socketConnect.roundStarted){
-        this.$socketConnect.endRound(this.hash)
+    endRound() {
+      if (this.$socketConnect.roundStarted) {
+        this.$socketConnect.endRound(this.hash);
       }
-    }
+    },
+    nameChange() {
+      if (!this.username.trim()) return;
+      const oldName = this.existingUser;
+      const newName = this.username.trim();
+
+      const savedRooms = JSON.parse(localStorage.getItem("rooms"));
+      savedRooms[this.hash] = newName;
+      localStorage.setItem("rooms", JSON.stringify(savedRooms));
+
+      this.$socketConnect.changeName(this.hash, oldName, newName);
+
+      this.existingUser = newName;
+      this.editMode = false;
+    },
+
+    startEdit() {
+      this.wigglePen = true;
+      setTimeout(() => {
+        this.wigglePen = false;
+        this.editMode = true;
+        this.username = this.existingUser;
+
+        this.$nextTick(() => {
+          this.$refs.nameInput.focus();
+        });
+      }, 400);
+    },
   },
   computed: {
     userList() {
@@ -89,20 +118,50 @@ export default {
     v-else
     class="relative min-h-screen bg-green-800 text-white overflow-hidden"
   >
-
-  <div v-if="this.$socketConnect.userRole === 'Scrum Master'" class="absolute top-40">
-    <button class="bg-yellow-200 p-1.5 rounded-2xl text-black" @click="startRound">Start new Game</button>
-    <button class="bg-red-400 p-1.5 rounded-2xl text-black" @click="endRound">End Round</button>
-  </div>
+    <div
+      v-if="this.$socketConnect.userRole === 'Scrum Master'"
+      class="absolute top-40"
+    >
+      <button
+        class="bg-yellow-200 p-1.5 rounded-2xl text-black"
+        @click="startRound"
+      >
+        Start new Game
+      </button>
+      <button class="bg-red-400 p-1.5 rounded-2xl text-black" @click="endRound">
+        End Round
+      </button>
+    </div>
 
     <!--Info-Panel oben rechts-->
     <div
       class="absolute top-4 right-3 bg-green-900 bg-opacity-80 p-4 rounded-lg shadow-lg w-80 space-y-3 text-sm"
     >
       <h2 class="text-lg font-bold text-yellow-300">🧾 Spielinformationen</h2>
-      <div class="font-semibold">
-        <span class="font-semibold">Benutzername:</span><br />
-        {{ this.existingUser }}
+
+      <div class="font-semibold flex items-center space-x-2">
+        <span>Benutzername:</span>
+
+        <span v-if="!editMode">{{ existingUser }}</span>
+
+        <transition name="fade-slide">
+          <input
+            v-if="editMode"
+            v-model="username"
+            placeholder="Neuer Name"
+            class="bg-transparent border-b border-yellow-300 focus:outline-none transition-all duration-300"
+            ref="nameInput"
+            @keyup.enter="nameChange"
+          />
+        </transition>
+
+        <button
+          @click="startEdit"
+          class="text-yellow-400 hover:scale-110 transition-transform duration-300"
+          :class="{ 'animate-wiggle': wigglePen }"
+        >
+          ✏️
+        </button>
       </div>
 
       <div>
@@ -131,7 +190,7 @@ export default {
       <div
         class="w-full max-w-6xl bg-green-700 border-[10px] border-yellow-400 rounded-full h-[500px] flex justify-center items-center"
       >
-      <OpponentCard :existingUser="existingUser"></OpponentCard>
+        <OpponentCard :existingUser="existingUser"></OpponentCard>
       </div>
     </div>
 
@@ -150,4 +209,44 @@ export default {
     </div>
   </div>
 </template>
-<style scoped></style>
+<style scoped>
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(10deg);
+  }
+  50% {
+    transform: rotate(-10deg);
+  }
+  75% {
+    transform: rotate(8deg);
+  }
+}
+.animate-wiggle {
+  animation: wiggle 0.4s ease-in-out;
+}
+
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.3s ease;
+}
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(-5px);
+}
+.fade-slide-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-slide-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-5px);
+}
+</style>
