@@ -19,6 +19,7 @@ class SocketConnecter {
     this.stagedStory = '';
     this.roundStarted = false;
     this.revealCards = false;
+    this.discussionPhase = false;
     return reactive(this);
   }
 
@@ -108,7 +109,8 @@ class SocketConnecter {
 
       if (response.type === "ended-round") {
         this.roundStarted = response.roundEnded;
-        this.revealCards = true;
+        //this.revealCards = true;
+        this.discussionPhase = false
       }
 
       if(response.type === "set-new-story"){
@@ -118,6 +120,11 @@ class SocketConnecter {
       if(response.type === "story-staged"){
         this.stagedStory = response.story
         console.log("Story staged to everyone",this.stagedStory)
+      }
+
+      if(response.type === "discussion-started"){
+        this.revealCards = true
+        this.discussionPhase = response.discussion
       }
 
     };
@@ -174,6 +181,11 @@ class SocketConnecter {
   stageStory(story,roomId){
     this.connect(()=>{
       socket.send(JSON.stringify({type:"stage story",story,roomId}))
+    })
+  }
+  startDiscussion(roomId){
+    this.connect(()=>{
+      socket.send(JSON.stringify({type:"start discussion",roomId}))
     })
   }
 }

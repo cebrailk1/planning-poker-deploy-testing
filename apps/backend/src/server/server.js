@@ -13,7 +13,8 @@ wss.on("connection", function connection(ws) {
         players: [],
         roundStarted: false,
         stories :[],
-        stagedStory:''
+        stagedStory:'',
+        discussion:false
       };
       rooms[roomId].players.push({
         name: username,
@@ -161,7 +162,7 @@ wss.on("connection", function connection(ws) {
       const { roomId } = JSON.parse(data);
 
       rooms[roomId].roundStarted = false;
-
+      rooms[roomId].discussion = false
       rooms[roomId].players.forEach((player) => {
         if (player.socket.readyState === WebSocket.OPEN) {
           player.socket.send(
@@ -200,7 +201,18 @@ wss.on("connection", function connection(ws) {
           player.socket.send(JSON.stringify({type:"story-staged",story:rooms[roomId].stagedStory}))
         }
       })
+    }
 
+    if(type === "start discussion"){
+      const {roomId} =JSON.parse(data)
+
+      rooms[roomId].discussion = true
+
+      rooms[roomId].players.forEach((player)=>{
+        if(player.socket.readyState === WebSocket.OPEN){
+          player.socket.send(JSON.stringify({type:"discussion-started",discussion:rooms[roomId].discussion}))
+        }
+      })
     }
 
   });

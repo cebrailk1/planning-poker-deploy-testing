@@ -10,7 +10,8 @@ export default {
       hasUsername: false,
       username: "",
       existingUser: null,
-      stagedStory:null
+      stagedStory:null,
+      storyPoints:null,
     };
   },
   methods: {
@@ -68,13 +69,16 @@ export default {
       }
     },
     endRound(){
-      if(this.$socketConnect.roundStarted){
+      if(this.$socketConnect.roundStarted && this.storyPoints){
         this.$socketConnect.endRound(this.hash)
       }
     },
     setStageStory(story){
       this.stagedStory = story
       this.$socketConnect.stageStory(this.stagedStory,this.hash)
+    },
+    startDiscussion(){
+      this.$socketConnect.startDiscussion(this.hash)
     }
   },
   computed: {
@@ -104,6 +108,18 @@ export default {
   <div v-if="this.$socketConnect.userRole === 'Scrum Master'" class="absolute top-40">
     <button class="bg-yellow-200 p-1.5 rounded-2xl text-black" @click="startRound">Start new Game</button>
     <button class="bg-red-400 p-1.5 rounded-2xl text-black" @click="endRound">End Round</button>
+    <button class="p-1.5" @click="startDiscussion">Start Discussion</button>
+    <select
+    v-if="this.$socketConnect.discussionPhase"
+    v-model="this.storyPoints"
+        class="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow cursor-pointer appearance-none">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="5">5</option>
+        <option value="8">8</option>
+        <option value="13">13</option>
+    </select>
   </div>
   
   <!--Storyboard-->
