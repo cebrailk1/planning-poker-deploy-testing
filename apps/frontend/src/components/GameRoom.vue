@@ -1,10 +1,11 @@
 <script>
+import DoneStories from "./DoneStories.vue";
 import GameCards from "./GameCards.vue";
 import OpponentCard from "./OpponentCard.vue";
 import StoryBoard from "./StoryBoard.vue";
 export default {
   props: { hash: String },
-  components: { GameCards,OpponentCard,StoryBoard },
+  components: { GameCards,OpponentCard,StoryBoard,DoneStories },
   data() {
     return {
       hasUsername: false,
@@ -69,8 +70,10 @@ export default {
       }
     },
     endRound(){
+      console.log(this.storyPoints)
       if(this.$socketConnect.roundStarted && this.storyPoints){
-        this.$socketConnect.endRound(this.hash)
+        console.log("ending round")
+        this.$socketConnect.endRound(this.hash,this.storyPoints,this.stagedStory)
       }
     },
     setStageStory(story){
@@ -101,7 +104,7 @@ export default {
     class="relative min-h-screen bg-green-800 text-white overflow-hidden"
   >
 <header class="flex justify-center items-center w-full py-4 bg-green-900">
-  <h1 class="text-xl font-bold text-white">Current Story: {{ this.$socketConnect.stagedStory }}</h1>
+  <h1 class="text-xl font-bold text-white">Current Story: {{ this.$socketConnect.stagedStory.name }}</h1>
   <p v-if="this.$socketConnect.roundStarted" class="text-xl">Runde hat gestartet</p>
 </header>
 
@@ -126,6 +129,11 @@ export default {
   <div class="absolute top-80">
     <StoryBoard :hash="this.hash" @stage-story="setStageStory"></StoryBoard>
   </div>
+
+  <div class="absolute top-80 right-1.5">
+    <DoneStories></DoneStories>
+  </div>
+
 
     <!--Info-Panel oben rechts-->
     <div

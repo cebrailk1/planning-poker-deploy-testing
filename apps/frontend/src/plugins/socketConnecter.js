@@ -20,6 +20,7 @@ class SocketConnecter {
     this.roundStarted = false;
     this.revealCards = false;
     this.discussionPhase = false;
+    this.discussedStories=[]
     return reactive(this);
   }
 
@@ -109,8 +110,10 @@ class SocketConnecter {
 
       if (response.type === "ended-round") {
         this.roundStarted = response.roundEnded;
+        this.storyList = response.stories
         //this.revealCards = true;
         this.discussionPhase = false
+        this.discussedStories = response.discussedStories
       }
 
       if(response.type === "set-new-story"){
@@ -168,9 +171,9 @@ class SocketConnecter {
       socket.send(JSON.stringify({ type: "start round", roomId }));
     });
   }
-  endRound(roomId) {
+  endRound(roomId,storyPoints,story) {
     this.connect(() => {
-      socket.send(JSON.stringify({ type: "end round", roomId }));
+      socket.send(JSON.stringify({ type: "end round", roomId,storyPoints,story }));
     });
   }
   addStory(story,roomId){

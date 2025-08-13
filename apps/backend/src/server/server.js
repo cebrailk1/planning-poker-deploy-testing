@@ -14,7 +14,8 @@ wss.on("connection", function connection(ws) {
         roundStarted: false,
         stories :[],//{name,points}
         stagedStory:'',
-        discussion:false
+        discussion:false,
+        discussedStories:[]
       };
       rooms[roomId].players.push({
         name: username,
@@ -159,16 +160,23 @@ wss.on("connection", function connection(ws) {
     }
 
     if (type === "end round") {
-      const { roomId } = JSON.parse(data);
+      const { roomId,storyPoints,story } = JSON.parse(data);
 
       rooms[roomId].roundStarted = false;
       rooms[roomId].discussion = false
+
+    let discussedStoryIndex= rooms[roomId].stories.findIndex((ele)=>ele.name===story.name)
+    rooms[roomId].stories[discussedStoryIndex].points = storyPoints
+    rooms[roomId].discussedStories.push(rooms[roomId].stories[discussedStoryIndex])
+    rooms[roomId].stories.splice(discussedStoryIndex,1)
       rooms[roomId].players.forEach((player) => {
         if (player.socket.readyState === WebSocket.OPEN) {
           player.socket.send(
             JSON.stringify({
               type: "ended-round",
               roundEnded: rooms[roomId].roundStarted,
+              stories:rooms[roomId].stories,
+              discussedStories:rooms[roomId].discussedStories
             })
           );
         }
@@ -185,7 +193,7 @@ wss.on("connection", function connection(ws) {
       rooms[roomId].players.forEach((player)=>{
         if(player.socket.readyState === WebSocket.OPEN){
           player.socket.send(JSON.stringify({
-            type:"set-new-story",//✅
+            type:"set-new-story",
             stories:rooms[roomId].stories
           }))
         }
@@ -208,7 +216,7 @@ wss.on("connection", function connection(ws) {
       const {roomId} =JSON.parse(data)
 
       rooms[roomId].discussion = true
-
+      console.log("starting discussionphase")
       rooms[roomId].players.forEach((player)=>{
         if(player.socket.readyState === WebSocket.OPEN){
           player.socket.send(JSON.stringify({type:"discussion-started",discussion:rooms[roomId].discussion}))
