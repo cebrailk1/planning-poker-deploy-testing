@@ -193,7 +193,6 @@ wss.on("connection", function connection(ws) {
     if (type === "set story") {
       const { story, roomId } = JSON.parse(data);
 
-      
       rooms[roomId].stories.push({ name: story, points: null });
       console.log(rooms[roomId].stories);
       rooms[roomId].players.forEach((player) => {
