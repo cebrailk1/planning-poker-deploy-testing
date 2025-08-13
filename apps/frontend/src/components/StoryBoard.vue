@@ -32,13 +32,13 @@ export default{
     <div v-if="this.$socketConnect.userRole==='Scrum Master'" class="w-auto m-1 border-2 border-solid p-2 w-20 rounded-xl shadow-lg bg-opacity-80 bg-green-900 border-yellow-200">
         <strong>Backlog</strong>
         <ul v-for="story in storyList">
-            <li @click="stageStory(story)" class="cursor-pointer m-1 p-1" :class="{'text-blue-300':story===this.$socketConnect.stagedStory}">{{ story }}</li>
+            <li @click="stageStory(story)" class="cursor-pointer m-1 p-1" :class="{'text-blue-300':story===this.$socketConnect.stagedStory}">{{ story.name }}</li>
         </ul>
     </div>
     <div v-else class="border-2 border-solid p-2 w-20 rounded-xl shadow-lg bg-opacity-80 bg-green-900 border-yellow-200">
         <strong>Backlog</strong>
         <ul v-for="story in storyList">
-            <li class="m-1 p-1" :class="{'text-blue-300':story===this.$socketConnect.stagedStory}">{{ story }}</li>
+            <li class="m-1 p-1" :class="{'text-blue-300':story===this.$socketConnect.stagedStory}">{{ story.name }}</li>
         </ul>
     </div> 
 </template>

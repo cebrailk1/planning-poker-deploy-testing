@@ -12,7 +12,7 @@ wss.on("connection", function connection(ws) {
       rooms[roomId] = {
         players: [],
         roundStarted: false,
-        stories :[],
+        stories :[],//{name,points}
         stagedStory:'',
         discussion:false
       };
@@ -179,12 +179,13 @@ wss.on("connection", function connection(ws) {
       const {story,roomId} = JSON.parse(data)
 
       //rooms[roomId].stories = []
-      rooms[roomId].stories.push(story)
+      //rooms[roomId].stories.push(story)
+      rooms[roomId].stories.push({name:story,points:null})
       console.log(rooms[roomId].stories)
       rooms[roomId].players.forEach((player)=>{
         if(player.socket.readyState === WebSocket.OPEN){
           player.socket.send(JSON.stringify({
-            type:"set-new-story",
+            type:"set-new-story",//✅
             stories:rooms[roomId].stories
           }))
         }
