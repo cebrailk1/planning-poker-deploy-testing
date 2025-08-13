@@ -18,10 +18,10 @@ wss.on("connection", function connection(ws) {
       rooms[roomId] = {
         players: [],
         roundStarted: false,
-        stories :[],//{name,points}
-        stagedStory:'',
-        discussion:false,
-        discussedStories:[]
+        stories: [], //{name,points}
+        stagedStory: "",
+        discussion: false,
+        discussedStories: [],
       };
       rooms[roomId].players.push({
         name: username.toLowerCase(),
@@ -88,7 +88,7 @@ wss.on("connection", function connection(ws) {
           message: "User angelegt",
           room: rooms[roomId],
           card: null,
-          stories:rooms[roomId].stories,
+          stories: rooms[roomId].stories,
           stagedStory: rooms[roomId].stagedStory,
           discussedStories:rooms[roomId].discussedStories,
           role:rooms[roomId].players[joinedUserIdx].role
@@ -127,9 +127,9 @@ wss.on("connection", function connection(ws) {
             type: "user-rejoined",
             room: rooms[roomId],
             role: rejoinedPlayer.role,
-            stories:rooms[roomId].stories,
+            stories: rooms[roomId].stories,
             stagedStory: rooms[roomId].stagedStory,
-            discussedStories:rooms[roomId].discussedStories
+            discussedStories: rooms[roomId].discussedStories,
           })
         );
       }
@@ -151,8 +151,12 @@ wss.on("connection", function connection(ws) {
         );
       });
 
-      let payload = {type:"set-card",name:user,card:currentPlayerChangedCard.card}
-      sendToEveryClient(roomId,payload,rooms)
+      let payload = {
+        type: "set-card",
+        name: user,
+        card: currentPlayerChangedCard.card,
+      };
+      sendToEveryClient(roomId, payload, rooms);
     }
 
     if (type === "start round") {
@@ -164,30 +168,37 @@ wss.on("connection", function connection(ws) {
       });
       console.log("runde startet alle Karten auf null", rooms[roomId]);
 
+      let payload = {
+        type: "started-round",
+        roundStarted: rooms[roomId].roundStarted,
+        room: rooms[roomId].players,
+      };
 
-      let payload = {type: "started-round",
-              roundStarted: rooms[roomId].roundStarted,
-              room:rooms[roomId].players}
-
-      sendToEveryClient(roomId,payload,rooms)
+      sendToEveryClient(roomId, payload, rooms);
     }
 
     if (type === "end round") {
-      const { roomId,storyPoints,story } = JSON.parse(data);
+      const { roomId, storyPoints, story } = JSON.parse(data);
 
       rooms[roomId].roundStarted = false;
-      rooms[roomId].discussion = false
-      rooms[roomId].stagedStory = ''
-    let discussedStoryIndex= rooms[roomId].stories.findIndex((ele)=>ele.name===story.name)
-    rooms[roomId].stories[discussedStoryIndex].points = storyPoints
-    rooms[roomId].discussedStories.push(rooms[roomId].stories[discussedStoryIndex])
-    rooms[roomId].stories.splice(discussedStoryIndex,1)
+      rooms[roomId].discussion = false;
+      rooms[roomId].stagedStory = "";
+      let discussedStoryIndex = rooms[roomId].stories.findIndex(
+        (ele) => ele.name === story.name
+      );
+      rooms[roomId].stories[discussedStoryIndex].points = storyPoints;
+      rooms[roomId].discussedStories.push(
+        rooms[roomId].stories[discussedStoryIndex]
+      );
+      rooms[roomId].stories.splice(discussedStoryIndex, 1);
 
-      let payload = {type: "ended-round",
-              roundEnded: rooms[roomId].roundStarted,
-              stories:rooms[roomId].stories,
-              discussedStories:rooms[roomId].discussedStories}
-      sendToEveryClient(roomId,payload,rooms)
+      let payload = {
+        type: "ended-round",
+        roundEnded: rooms[roomId].roundStarted,
+        stories: rooms[roomId].stories,
+        discussedStories: rooms[roomId].discussedStories,
+      };
+      sendToEveryClient(roomId, payload, rooms);
     }
 
     if(type==="set story"){
@@ -198,71 +209,105 @@ wss.on("connection", function connection(ws) {
         return
       }
 
-      rooms[roomId].stories.push({name:story,points:null})
-      console.log(rooms[roomId].stories)
+      rooms[roomId].stories.push({ name: story, points: null });
+      console.log(rooms[roomId].stories);
       let payload = {
-            type:"set-new-story",
-            stories:rooms[roomId].stories
-          }
+        type: "set-new-story",
+        stories: rooms[roomId].stories,
+      };
 
-          sendToEveryClient(roomId,payload,rooms)
+      sendToEveryClient(roomId, payload, rooms);
     }
 
-    if(type === "stage story"){
-      const {story,roomId} = JSON.parse(data)
+    if (type === "stage story") {
+      const { story, roomId } = JSON.parse(data);
 
-      rooms[roomId].stagedStory = story
-      console.log(rooms[roomId].stagedStory)
-      let payload = {type:"story-staged",story:rooms[roomId].stagedStory}
-      sendToEveryClient(roomId,payload,rooms)
-
+      rooms[roomId].stagedStory = story;
+      console.log(rooms[roomId].stagedStory);
+      let payload = { type: "story-staged", story: rooms[roomId].stagedStory };
+      sendToEveryClient(roomId, payload, rooms);
     }
 
-    if(type === "start discussion"){
-      const {roomId} =JSON.parse(data)
+    if (type === "start discussion") {
+      const { roomId } = JSON.parse(data);
 
-      rooms[roomId].discussion = true
-      console.log("starting discussionphase")
-     let payload =  {type:"discussion-started",discussion:rooms[roomId].discussion}
-     sendToEveryClient(roomId,payload,rooms)
-
+      rooms[roomId].discussion = true;
+      console.log("starting discussionphase");
+      let payload = {
+        type: "discussion-started",
+        discussion: rooms[roomId].discussion,
+      };
+      sendToEveryClient(roomId, payload, rooms);
     }
 
-    if(type === "leave room"){
-      const {roomId,user} = JSON.parse(data)
-    
-     const leavingUser = rooms[roomId].players.findIndex((player)=>player.name===user)
+    if (type === "leave room") {
+      const { roomId, user } = JSON.parse(data);
 
-      const isScrumMaster = checkUserRole(leavingUser,rooms[roomId].players)
+      const leavingUser = rooms[roomId].players.findIndex(
+        (player) => player.name === user
+      );
 
-      if(isScrumMaster){
-        let payload = {type:"left"}
-        sendToEveryClient(roomId,payload,rooms)
-        delete rooms[roomId]
-        return
-     }
+      const isScrumMaster = checkUserRole(leavingUser, rooms[roomId].players);
 
-     rooms[roomId].players.splice(leavingUser,1)
-     console.log("User left",rooms[roomId].players)
-     if(rooms[roomId].players.length===0){
-      delete rooms[roomId]
-      ws.send(JSON.stringify({type:"left"}))
-     }else{
-     ws.send(JSON.stringify({type:"left"}))
-     rooms[roomId].players.forEach((player)=>{
-      if( player.socket !== ws &&player.socket.readyState===WebSocket.OPEN){
-        player.socket.send(JSON.stringify({type:"user-left",room:rooms[roomId]}))
+      if (isScrumMaster) {
+        let payload = { type: "left" };
+        sendToEveryClient(roomId, payload, rooms);
+        delete rooms[roomId];
+        return;
       }
-    })}
-    }
 
-    if(type === 'copy stories'){
-      const {roomId} = JSON.parse(data)
-      let exportedData =  exportGameData(rooms[roomId])
-      ws.send(JSON.stringify({type:"exported-data",exportedData}))
+      rooms[roomId].players.splice(leavingUser, 1);
+      console.log("User left", rooms[roomId].players);
+      if (rooms[roomId].players.length === 0) {
+        delete rooms[roomId];
+        ws.send(JSON.stringify({ type: "left" }));
+      } else {
+        ws.send(JSON.stringify({ type: "left" }));
+        rooms[roomId].players.forEach((player) => {
+          if (
+            player.socket !== ws &&
+            player.socket.readyState === WebSocket.OPEN
+          ) {
+            player.socket.send(
+              JSON.stringify({ type: "user-left", room: rooms[roomId] })
+            );
+          }
+        });
+      }
     }
-
   });
+
+  if (type === "change-name") {
+    const { roomId, oldName, newName } = JSON.parse(data);
+
+    const player = rooms[roomId]?.players.find((p) => p.name === oldName);
+    if (!player) {
+      ws.send(
+        JSON.stringify({
+          type: "error",
+          message: "Spieler nicht gefunden",
+        })
+      );
+      return;
+    }
+
+    player.name = newName;
+
+    rooms[roomId].players.forEach((p) => {
+      if (p.socket.readyState === WebSocket.OPEN) {
+        p.socket.send(
+          JSON.stringify({
+            type: "user-list-update",
+            players: rooms[roomId].players.map((pl) => ({
+              name: pl.name,
+              role: pl.role,
+              card: pl.card,
+            })),
+          })
+        );
+      }
+    });
+  }
 });
 
 function roomHasher() {
@@ -277,9 +322,9 @@ function checkUserExists(room, user) {
   }
 }
 
-function checkUserRole(leavingUser,players){
-  if(players[leavingUser].role==="Scrum Master"){
-    return true
+function checkUserRole(leavingUser, players) {
+  if (players[leavingUser].role === "Scrum Master") {
+    return true;
   }
-  return false
+  return false;
 }
