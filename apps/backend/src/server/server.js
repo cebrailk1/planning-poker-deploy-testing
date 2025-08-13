@@ -67,8 +67,8 @@ wss.on("connection", function connection(ws) {
           room: rooms[roomId],
           card: null,
           stories:rooms[roomId].stories,
-          stagedStory: rooms[roomId].stagedStory
-
+          stagedStory: rooms[roomId].stagedStory,
+          discussedStories:rooms[roomId].discussedStories
         })
       );
 
@@ -105,7 +105,8 @@ wss.on("connection", function connection(ws) {
             room: rooms[roomId],
             role: rejoinedPlayer.role,
             stories:rooms[roomId].stories,
-            stagedStory: rooms[roomId].stagedStory
+            stagedStory: rooms[roomId].stagedStory,
+            discussedStories:rooms[roomId].discussedStories
           })
         );
       }
@@ -166,7 +167,7 @@ wss.on("connection", function connection(ws) {
 
       rooms[roomId].roundStarted = false;
       rooms[roomId].discussion = false
-
+      rooms[roomId].stagedStory = ''
     let discussedStoryIndex= rooms[roomId].stories.findIndex((ele)=>ele.name===story.name)
     rooms[roomId].stories[discussedStoryIndex].points = storyPoints
     rooms[roomId].discussedStories.push(rooms[roomId].stories[discussedStoryIndex])

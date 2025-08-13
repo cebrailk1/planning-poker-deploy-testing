@@ -64,7 +64,8 @@ class SocketConnecter {
             });
           });
           this.storyList = response.stories
-          this.stagedStory = response.stagedStory 
+          this.stagedStory = response.stagedStory
+          this.discussedStories = response.discussedStories 
           this.onRoomJoinedCallback(response.room);
           this.onRoomJoinedCallback = null;
         }
@@ -93,6 +94,7 @@ class SocketConnecter {
         this.roundStarted = response.room.roundStarted;
         this.storyList = response.stories
         this.stagedStory = response.stagedStory
+        this.discussedStories = response.discussedStories
       }
 
       if (response.type === "set-card") {
