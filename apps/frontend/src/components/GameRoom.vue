@@ -109,14 +109,11 @@ export default {
 
   <ScrumMasterTools @endRound="endRound" @startRound="startRound" @startDiscussion="startDiscussion" :hash="this.hash"></ScrumMasterTools>
   
-  <!--Storyboard-->
-  <div class="absolute top-80">
     <StoryBoard :hash="this.hash" @stage-story="setStageStory"></StoryBoard>
-  </div>
+  
 
-  <div class="absolute top-80 right-1.5">
     <DoneStories></DoneStories>
-  </div>
+  
 
 
     <!--Info-Panel oben rechts-->

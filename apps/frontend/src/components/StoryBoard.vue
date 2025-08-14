@@ -28,6 +28,7 @@ export default {
 };
 </script>
 <template>
+    <div class="absolute top-80">
   <div
     v-if="this.$socketConnect.userRole === 'Scrum Master'"
     class="w-auto m-1 border-2 border-solid p-2 rounded-xl shadow-lg bg-opacity-80 bg-green-900 border-yellow-200"
@@ -72,5 +73,6 @@ export default {
         {{ story.name }}
       </li>
     </ul>
+  </div>
   </div>
 </template>
