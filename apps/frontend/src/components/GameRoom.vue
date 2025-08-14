@@ -59,29 +59,10 @@ export default {
       const savedRooms = JSON.parse(localStorage.getItem("rooms"));
       this.$socketConnect.setCard(card, savedRooms[this.hash], this.hash);
     },
-
-    startRound(){
-      if(this.$socketConnect.roundStarted){
-        alert("Your Round already started")
-      }else if(this.$socketConnect.stagedStory===''){
-        alert("Choose a Story to start a new Round")
-      }else{
-        this.$socketConnect.startRound(this.hash)
-      }
-    },
-    endRound(storyPoints){
-      if(this.$socketConnect.roundStarted && storyPoints){
-        console.log("ending round")
-        this.$socketConnect.endRound(this.hash,storyPoints,this.stagedStory)
-      }
-    },
     setStageStory(story){
       this.stagedStory = story
       this.$socketConnect.stageStory(this.stagedStory,this.hash)
     },
-    startDiscussion(){
-      this.$socketConnect.startDiscussion(this.hash)
-    }
   },
   computed: {
     userList() {
@@ -107,7 +88,7 @@ export default {
   <p v-if="this.$socketConnect.roundStarted" class="text-xl">Runde hat gestartet</p>
 </header>
 
-  <ScrumMasterTools @endRound="endRound" @startRound="startRound" @startDiscussion="startDiscussion" :hash="this.hash"></ScrumMasterTools>
+  <ScrumMasterTools :hash="this.hash" :stagedStory="this.stagedStory"></ScrumMasterTools>
   
     <StoryBoard :hash="this.hash" @stage-story="setStageStory"></StoryBoard>
   

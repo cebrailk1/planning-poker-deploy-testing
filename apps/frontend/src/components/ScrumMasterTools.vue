@@ -1,37 +1,70 @@
 <script>
-export default{
-    props:['hash'],
-    data(){
-        return{
-            storyPoints:null,
-            story:''
-        }
+export default {
+  props: ["hash","stagedStory"],
+  data() {
+    return {
+      storyPoints: null,
+      story: "",
+    };
+  },
+  methods: {
+    addStory() {
+      this.$socketConnect.addStory(this.story, this.hash);
+      this.story = "";
     },
-    methods:{
-        addStory(){
-            this.$socketConnect.addStory(this.story,this.hash)
-            this.story = ''
-        }
+    startRound() {
+      if (this.$socketConnect.roundStarted) {
+        alert("Your Round already started");
+      } else if (this.$socketConnect.stagedStory === "") {
+        alert("Choose a Story to start a new Round");
+      } else {
+        this.$socketConnect.startRound(this.hash);
+      } 
+    },
+    endRound(){
+      if(this.$socketConnect.roundStarted && this.storyPoints){
+        console.log("ending round")
+        this.$socketConnect.endRound(this.hash,this.storyPoints,this.stagedStory)
+      }
+    },
+    startDiscussion(){
+      if(this.$socketConnect.roundStarted){
+        this.$socketConnect.startDiscussion(this.hash)
+      }else{
+        alert("First start a Round")
+      }
     }
-}
+  },
+};
 </script>
 <template>
-    
   <div
     v-if="this.$socketConnect.userRole === 'Scrum Master'"
     class="absolute top-60 m-10"
   >
-      <input v-if="this.$socketConnect.userRole==='Scrum Master'" class="placeholder:text-slate-400 text-sm border border-slate-200 rounded-md px-3 py-2" type="text" placeholder="Story..." @change="addStory" v-model="story"/>
+    <input
+      v-if="this.$socketConnect.userRole === 'Scrum Master'"
+      class="placeholder:text-slate-400 text-sm border border-slate-200 rounded-md px-3 py-2"
+      type="text"
+      placeholder="Story..."
+      @change="addStory"
+      v-model="story"
+    />
     <button
       class="bg-yellow-200 p-1.5 rounded-2xl text-black"
-      @click="this.$emit('startRound')"
+      @click="startRound"
     >
       Start new Game
     </button>
-    <button class="bg-red-400 p-1.5 rounded-2xl text-black" @click="this.$emit('endRound',this.storyPoints)">
+    <button
+      class="bg-red-400 p-1.5 rounded-2xl text-black"
+      @click="endRound"
+    >
       End Round
     </button>
-    <button class="p-1.5" @click="this.$emit('startDiscussion')">Start Discussion</button>
+    <button class="p-1.5" @click="startDiscussion">
+      Start Discussion
+    </button>
     <select
       v-if="this.$socketConnect.discussionPhase"
       v-model="this.storyPoints"
