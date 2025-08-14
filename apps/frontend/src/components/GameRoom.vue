@@ -13,7 +13,6 @@ export default {
       username: "",
       existingUser: null,
       stagedStory:null,
-      //storyPoints:null,
     };
   },
   methods: {
@@ -152,22 +151,13 @@ export default {
       </div>
     </div>
 
-    <div class="flex justify-center items-center h-screen">
-      <div
-        class="w-full max-w-6xl bg-green-700 border-[10px] border-yellow-400 rounded-full h-[500px] flex justify-center items-center"
-      >
+    
       <OpponentCard :existingUser="existingUser"></OpponentCard>
-      </div>
-    </div>
+    
 
-    <div class="absolute w-full bottom-30">
-      <div class="flex justify-center items-center">
         <GameCards
           v-if="this.$socketConnect.userRole !== 'Scrum Master'"
           @card="setCard"
         ></GameCards>
-      </div>
-    </div>
   </div>
 </template>
-<style scoped></style>

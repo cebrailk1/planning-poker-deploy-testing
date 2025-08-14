@@ -30,6 +30,8 @@ export default {
 };
 </script>
 <template>
+  <div class="absolute w-full bottom-30">
+      <div class="flex justify-center items-center">
   <div
     v-for="card in fibonacciCards"
     :key="card"
@@ -46,5 +48,7 @@ export default {
     >
       ✓
     </div>
+  </div>
+  </div>
   </div>
 </template>
