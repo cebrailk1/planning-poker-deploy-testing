@@ -2,17 +2,18 @@
 import DoneStories from "./DoneStories.vue";
 import GameCards from "./GameCards.vue";
 import OpponentCard from "./OpponentCard.vue";
+import ScrumMasterTools from "./ScrumMasterTools.vue";
 import StoryBoard from "./StoryBoard.vue";
 export default {
   props: { hash: String },
-  components: { GameCards,OpponentCard,StoryBoard,DoneStories },
+  components: { GameCards,OpponentCard,StoryBoard,DoneStories,ScrumMasterTools },
   data() {
     return {
       hasUsername: false,
       username: "",
       existingUser: null,
       stagedStory:null,
-      storyPoints:null,
+      //storyPoints:null,
     };
   },
   methods: {
@@ -69,11 +70,10 @@ export default {
         this.$socketConnect.startRound(this.hash)
       }
     },
-    endRound(){
-      console.log(this.storyPoints)
-      if(this.$socketConnect.roundStarted && this.storyPoints){
+    endRound(storyPoints){
+      if(this.$socketConnect.roundStarted && storyPoints){
         console.log("ending round")
-        this.$socketConnect.endRound(this.hash,this.storyPoints,this.stagedStory)
+        this.$socketConnect.endRound(this.hash,storyPoints,this.stagedStory)
       }
     },
     setStageStory(story){
@@ -108,22 +108,7 @@ export default {
   <p v-if="this.$socketConnect.roundStarted" class="text-xl">Runde hat gestartet</p>
 </header>
 
-  <div v-if="this.$socketConnect.userRole === 'Scrum Master'" class="absolute top-60 m-10">
-    <button class="bg-yellow-200 p-1.5 rounded-2xl text-black" @click="startRound">Start new Game</button>
-    <button class="bg-red-400 p-1.5 rounded-2xl text-black" @click="endRound">End Round</button>
-    <button class="p-1.5" @click="startDiscussion">Start Discussion</button>
-    <select
-    v-if="this.$socketConnect.discussionPhase"
-    v-model="this.storyPoints"
-        class="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow cursor-pointer appearance-none">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="5">5</option>
-        <option value="8">8</option>
-        <option value="13">13</option>
-    </select>
-  </div>
+  <ScrumMasterTools @endRound="endRound" @startRound="startRound" @startDiscussion="startDiscussion" :hash="this.hash"></ScrumMasterTools>
   
   <!--Storyboard-->
   <div class="absolute top-80">
@@ -137,7 +122,7 @@ export default {
 
     <!--Info-Panel oben rechts-->
     <div
-      class="absolute top-4 right-3 bg-green-900 bg-opacity-80 p-4 rounded-lg shadow-lg w-80 space-y-3 text-sm"
+      class="absolute top-25 right-3 bg-green-900 bg-opacity-80 p-4 rounded-lg shadow-lg w-80 space-y-3 text-sm"
     >
       <h2 class="text-lg font-bold text-yellow-300">🧾 Spielinformationen</h2>
       <div class="font-semibold">
@@ -155,7 +140,7 @@ export default {
 
     <!--Oben links-->
     <div
-      class="absolute top-4 left-4 text-sm bg-green-900 bg-opacity-80 p-4 rounded-lg shadow-lg w-80 space-y-3"
+      class="absolute top-25 left-4 text-sm bg-green-900 bg-opacity-80 p-4 rounded-lg shadow-lg w-80 space-y-3"
     >
       <div>
         <h2 class="text-2xl font-semibold mb-2">Spieler im Raum:</h2>
@@ -173,11 +158,6 @@ export default {
       >
       <OpponentCard :existingUser="existingUser"></OpponentCard>
       </div>
-    </div>
-
-    <!--karten von allen anderen usern-->
-    <div>
-      <div></div>
     </div>
 
     <div class="absolute w-full bottom-30">
