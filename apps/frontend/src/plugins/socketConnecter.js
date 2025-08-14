@@ -7,10 +7,11 @@ export default {
   },
 };
 let socket;
-let roomHash;
 
 class SocketConnecter {
   constructor() {
+    this.roomHash
+    this.createdRoomBool=false
     this.onRoomCreatedCallback = null;
     this.onRoomJoinedCallback = null;
     this.userList = []; //[{name,role,card}]
@@ -40,7 +41,7 @@ class SocketConnecter {
       const response = JSON.parse(message.data);
 
       if (response.type === "room-created") {
-        roomHash = response.roomId;
+        this.roomHash = response.roomId;
         console.log(response.room.players[0].role);
         this.userRole = response.room.players[0].role;
         this.userList.push({
@@ -48,10 +49,8 @@ class SocketConnecter {
           role: response.room.players[0].role,
           card: response.room.players[0].card,
         });
-        if (this.onRoomCreatedCallback) {
-          this.onRoomCreatedCallback(roomHash);
-          this.onRoomCreatedCallback = null;
-        }
+        this.createdRoomBool = true
+        console.log(this.createdRoomBool)
       }
 
       if (response.type === "room-joined") {
@@ -145,8 +144,7 @@ class SocketConnecter {
     };
   }
 
-  createRoom(username, callback) {
-    this.onRoomCreatedCallback = callback;
+  createRoom(username) {
     this.connect(() => {
       socket.send(JSON.stringify({ type: "create room", username }));
     });

@@ -6,13 +6,19 @@ import ScrumMasterTools from "./ScrumMasterTools.vue";
 import StoryBoard from "./StoryBoard.vue";
 export default {
   props: { hash: String },
-  components: { GameCards,OpponentCard,StoryBoard,DoneStories,ScrumMasterTools },
+  components: {
+    GameCards,
+    OpponentCard,
+    StoryBoard,
+    DoneStories,
+    ScrumMasterTools,
+  },
   data() {
     return {
       hasUsername: false,
       username: "",
       existingUser: null,
-      stagedStory:null,
+      stagedStory: null,
     };
   },
   methods: {
@@ -40,7 +46,7 @@ export default {
       });
     },
     initialJoin() {
-     const savedRooms = JSON.parse(localStorage.getItem("rooms"));
+      const savedRooms = JSON.parse(localStorage.getItem("rooms"));
       savedRooms.createdRoom = false;
       localStorage.setItem(
         "rooms",
@@ -59,9 +65,9 @@ export default {
       const savedRooms = JSON.parse(localStorage.getItem("rooms"));
       this.$socketConnect.setCard(card, savedRooms[this.hash], this.hash);
     },
-    setStageStory(story){
-      this.stagedStory = story
-      this.$socketConnect.stageStory(this.stagedStory,this.hash)
+    setStageStory(story) {
+      this.stagedStory = story;
+      this.$socketConnect.stageStory(this.stagedStory, this.hash);
     },
   },
   computed: {
@@ -83,19 +89,23 @@ export default {
     v-else
     class="relative min-h-screen bg-green-800 text-white overflow-hidden"
   >
-<header class="flex justify-center items-center w-full py-4 bg-green-900">
-  <h1 class="text-xl font-bold text-white">Current Story: {{ this.$socketConnect.stagedStory.name }}</h1>
-  <p v-if="this.$socketConnect.roundStarted" class="text-xl">Runde hat gestartet</p>
-</header>
+    <header class="flex justify-center items-center w-full py-4 bg-green-900">
+      <h1 class="text-xl font-bold text-white">
+        Current Story: {{ this.$socketConnect.stagedStory.name }}
+      </h1>
+      <p v-if="this.$socketConnect.roundStarted" class="text-xl">
+        Runde hat gestartet
+      </p>
+    </header>
 
-  <ScrumMasterTools :hash="this.hash" :stagedStory="this.stagedStory"></ScrumMasterTools>
-  
+    <ScrumMasterTools
+      :hash="this.hash"
+      :stagedStory="this.stagedStory"
+    ></ScrumMasterTools>
+
     <StoryBoard :hash="this.hash" @stage-story="setStageStory"></StoryBoard>
-  
 
     <DoneStories></DoneStories>
-  
-
 
     <!--Info-Panel oben rechts-->
     <div
@@ -129,13 +139,11 @@ export default {
       </div>
     </div>
 
-    
-      <OpponentCard :existingUser="existingUser"></OpponentCard>
-    
+    <OpponentCard :existingUser="existingUser"></OpponentCard>
 
-        <GameCards
-          v-if="this.$socketConnect.userRole !== 'Scrum Master'"
-          @card="setCard"
-        ></GameCards>
+    <GameCards
+      v-if="this.$socketConnect.userRole !== 'Scrum Master'"
+      @card="setCard"
+    ></GameCards>
   </div>
 </template>

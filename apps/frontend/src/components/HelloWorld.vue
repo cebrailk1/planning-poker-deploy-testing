@@ -10,12 +10,25 @@ export default{
       if(this.username===''){
         alert("type username in...")
       }else{
-      this.$socketConnect.createRoom(this.username, (roomHash) => {
-       localStorage.setItem("rooms",JSON.stringify({[roomHash]:this.username,createdRoom:true}))
-       this.$router.push({ name: 'GameRoom', params: { hash: roomHash }})
-      })
-    }}
-  }//die funktionalität als watcher einbauen
+      this.$socketConnect.createRoom(this.username)
+      }
+    }},
+
+    watch:{
+    '$socketConnect.createdRoomBool'(newVal){
+      if(newVal){
+        console.log("watcher triggered",this.$socketConnect.roomHash)
+         localStorage.setItem(
+          "rooms",
+          JSON.stringify({
+            [this.$socketConnect.roomHash]: this.username,
+            createdRoom: true
+          })
+        )
+        this.$router.push({ name: 'GameRoom', params: { hash: this.$socketConnect.roomHash }})
+      }
+    }
+  }
 }
 </script>
 
