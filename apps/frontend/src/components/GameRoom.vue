@@ -4,6 +4,8 @@ import GameCards from "./GameCards.vue";
 import OpponentCard from "./OpponentCard.vue";
 import ScrumMasterTools from "./ScrumMasterTools.vue";
 import StoryBoard from "./StoryBoard.vue";
+import UserList from "./UserList.vue";
+import RoomInfoPanel from "./RoomInfoPanel.vue";
 export default {
   props: { hash: String },
   components: {
@@ -12,6 +14,8 @@ export default {
     StoryBoard,
     DoneStories,
     ScrumMasterTools,
+    UserList,
+    RoomInfoPanel
   },
   data() {
     return {
@@ -37,14 +41,13 @@ export default {
           alert("Dieser Benutzername existiert bereits im Raum!");
           return;
         }
+
         localStorage.setItem(
           "rooms",
           JSON.stringify({ [this.hash]: this.username, createdRoom: false })
         );
         this.existingUser = this.username;
         this.hasUsername = true;
-        console.log(this.hasUsername);
-        console.log(this.$socketConnect.gameLeft);
       });
     },
 
@@ -114,37 +117,9 @@ export default {
 
     <DoneStories></DoneStories>
 
-    <!--Info-Panel oben rechts-->
-    <div
-      class="absolute top-25 right-3 bg-green-900 bg-opacity-80 p-4 rounded-lg shadow-lg w-80 space-y-3 text-sm"
-    >
-      <h2 class="text-lg font-bold text-yellow-300">🧾 Spielinformationen</h2>
-      <div class="font-semibold">
-        <span class="font-semibold">Benutzername:</span><br />
-        {{ this.existingUser }}
-      </div>
+    <RoomInfoPanel :existing-user="this.existingUser"></RoomInfoPanel>
 
-      <div>
-        <span class="font-semibold">Raum-Link: </span><br />
-        <p class="text-blue-200 underline break-all">
-          http://localhost:5173/room/{{ this.hash }}
-        </p>
-      </div>
-    </div>
-
-    <!--Oben links-->
-    <div
-      class="absolute top-25 left-4 text-sm bg-green-900 bg-opacity-80 p-4 rounded-lg shadow-lg w-80 space-y-3"
-    >
-      <div>
-        <h2 class="text-2xl font-semibold mb-2">Spieler im Raum:</h2>
-        <ul class="list-none list-inside space-y-1 text-lg text-white">
-          <li v-for="user in userList" :key="user">
-            {{ user.name.toUpperCase() }} ({{ user.role }})
-          </li>
-        </ul>
-      </div>
-    </div>
+    <UserList></UserList>
 
     <OpponentCard :existingUser="existingUser"></OpponentCard>
 
