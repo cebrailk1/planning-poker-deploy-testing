@@ -1,8 +1,13 @@
 <script>
 export default{
-    props:['existingUser'],
+    props:['existingUser','hash'],
     data(){
         return{}
+    },
+    methods:{
+      saveToClipboard(){
+        navigator.clipboard.writeText(`http://localhost:5173/room/${this.hash}`)
+      }
     }
 }
 </script>
@@ -21,6 +26,12 @@ export default{
       <p class="text-blue-200 underline break-all">
         http://localhost:5173/room/{{ this.hash }}
       </p>
+       <img 
+        src="../assets/checklist.png" 
+        alt="Clipboard Icon"
+        class="w-6 h-6 cursor-pointer inline-block"
+        @click="saveToClipboard"
+      />
     </div>
   </div>
 </template>

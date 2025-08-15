@@ -113,7 +113,7 @@ export default {
 
     <DoneStories></DoneStories>
 
-    <RoomInfoPanel :existing-user="this.existingUser"></RoomInfoPanel>
+    <RoomInfoPanel :existing-user="this.existingUser" :hash="this.hash"></RoomInfoPanel>
 
     <UserList></UserList>
 
