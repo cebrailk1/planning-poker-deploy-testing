@@ -203,7 +203,16 @@ wss.on("connection", function connection(ws) {
     if(type === "leave room"){
       const {roomId,user} = JSON.parse(data)
     
-     const leavingUser = rooms[roomId].players.findIndex((player)=>player.name===user)//gucken was mit rolle machen wenn scrum master
+     const leavingUser = rooms[roomId].players.findIndex((player)=>player.name===user)
+
+      const isScrumMaster = checkUserRole(leavingUser,rooms[roomId].players)
+
+      if(isScrumMaster){
+        let payload = {type:"left"}
+        sendToEveryClient(roomId,payload,rooms)
+        delete rooms[roomId]
+        return
+     }
 
      rooms[roomId].players.splice(leavingUser,1)
      console.log("User left",rooms[roomId].players)
@@ -232,4 +241,11 @@ function checkUserExists(room, user) {
       return true;
     }
   }
+}
+
+function checkUserRole(leavingUser,players){
+  if(players[leavingUser].role==="Scrum Master"){
+    return true
+  }
+  return false
 }
