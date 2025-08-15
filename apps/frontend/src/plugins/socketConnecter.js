@@ -10,18 +10,19 @@ let socket;
 
 class SocketConnecter {
   constructor() {
-    this.roomHash
-    this.createdRoomBool=false
+    this.roomHash;
+    this.createdRoomBool = false;
     this.onRoomCreatedCallback = null;
     this.onRoomJoinedCallback = null;
     this.userList = []; //[{name,role,card}]
     this.userRole = null;
     this.storyList = [];
-    this.stagedStory = '';
+    this.stagedStory = "";
     this.roundStarted = false;
     this.revealCards = false;
     this.discussionPhase = false;
-    this.discussedStories=[]
+    this.discussedStories = [];
+    this.gameLeft = false;
     return reactive(this);
   }
 
@@ -49,12 +50,14 @@ class SocketConnecter {
           role: response.room.players[0].role,
           card: response.room.players[0].card,
         });
-        this.createdRoomBool = true
-        console.log(this.createdRoomBool)
+
+        console.log("already true maybe", this.createdRoomBool); //fuck
+        this.createdRoomBool = true;
       }
 
       if (response.type === "room-joined") {
         if (this.onRoomJoinedCallback) {
+          console.log("callback");
           response.room.players.forEach((player) => {
             this.userList.push({
               name: player.name,
@@ -62,9 +65,10 @@ class SocketConnecter {
               card: player.card,
             });
           });
-          this.storyList = response.stories
-          this.stagedStory = response.stagedStory
-          this.discussedStories = response.discussedStories 
+          //this.gameLeft = false
+          this.storyList = response.stories;
+          this.stagedStory = response.stagedStory;
+          this.discussedStories = response.discussedStories;
           this.onRoomJoinedCallback(response.room);
           this.onRoomJoinedCallback = null;
         }
@@ -91,9 +95,9 @@ class SocketConnecter {
         this.userList = response.room.players;
         this.userRole = response.role;
         this.roundStarted = response.room.roundStarted;
-        this.storyList = response.stories
-        this.stagedStory = response.stagedStory
-        this.discussedStories = response.discussedStories
+        this.storyList = response.stories;
+        this.stagedStory = response.stagedStory;
+        this.discussedStories = response.discussedStories;
       }
 
       if (response.type === "set-card") {
@@ -106,33 +110,43 @@ class SocketConnecter {
 
       if (response.type === "started-round") {
         this.roundStarted = response.roundStarted;
-        this.revealCards = false
-        this.userList = response.room
+        this.revealCards = false;
+        this.userList = response.room;
       }
 
       if (response.type === "ended-round") {
         this.roundStarted = response.roundEnded;
-        this.storyList = response.stories
+        this.storyList = response.stories;
         //this.revealCards = true;
-        this.discussionPhase = false
-        this.discussedStories = response.discussedStories
-        this.stagedStory = ''
+        this.discussionPhase = false;
+        this.discussedStories = response.discussedStories;
+        this.stagedStory = "";
       }
 
-      if(response.type === "set-new-story"){
-        this.storyList = response.stories
+      if (response.type === "set-new-story") {
+        this.storyList = response.stories;
       }
 
-      if(response.type === "story-staged"){
-        this.stagedStory = response.story
-        console.log("Story staged to everyone",this.stagedStory)
+      if (response.type === "story-staged") {
+        this.stagedStory = response.story;
+        console.log("Story staged to everyone", this.stagedStory);
       }
 
-      if(response.type === "discussion-started"){
-        this.revealCards = true
-        this.discussionPhase = response.discussion
+      if (response.type === "discussion-started") {
+        this.revealCards = true;
+        this.discussionPhase = response.discussion;
       }
 
+      if (response.type === "left") {
+        console.log("YOU left");
+        this.gameLeft = true;
+        socket.onclose()
+      }
+
+      if (response.type === "user-left") {
+        console.log("spieler left");
+        this.userList = response.room.players;
+      }
     };
 
     socket.onerror = (err) => {
@@ -173,24 +187,31 @@ class SocketConnecter {
       socket.send(JSON.stringify({ type: "start round", roomId }));
     });
   }
-  endRound(roomId,storyPoints,story) {
+  endRound(roomId, storyPoints, story) {
     this.connect(() => {
-      socket.send(JSON.stringify({ type: "end round", roomId,storyPoints,story }));
+      socket.send(
+        JSON.stringify({ type: "end round", roomId, storyPoints, story })
+      );
     });
   }
-  addStory(story,roomId){
-    this.connect(()=>{
-      socket.send(JSON.stringify({type:"set story",story,roomId}))
-    })
+  addStory(story, roomId) {
+    this.connect(() => {
+      socket.send(JSON.stringify({ type: "set story", story, roomId }));
+    });
   }
-  stageStory(story,roomId){
-    this.connect(()=>{
-      socket.send(JSON.stringify({type:"stage story",story,roomId}))
-    })
+  stageStory(story, roomId) {
+    this.connect(() => {
+      socket.send(JSON.stringify({ type: "stage story", story, roomId }));
+    });
   }
-  startDiscussion(roomId){
-    this.connect(()=>{
-      socket.send(JSON.stringify({type:"start discussion",roomId}))
-    })
+  startDiscussion(roomId) {
+    this.connect(() => {
+      socket.send(JSON.stringify({ type: "start discussion", roomId }));
+    });
+  }
+  leaveRoom(roomId, user) {
+    this.connect(() => {
+      socket.send(JSON.stringify({ type: "leave room", roomId, user }));
+    });
   }
 }

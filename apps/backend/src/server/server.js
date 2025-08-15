@@ -199,6 +199,26 @@ wss.on("connection", function connection(ws) {
      sendToEveryClient(roomId,payload,rooms)
 
     }
+
+    if(type === "leave room"){
+      const {roomId,user} = JSON.parse(data)
+    
+     const leavingUser = rooms[roomId].players.findIndex((player)=>player.name===user)//gucken was mit rolle machen wenn scrum master
+
+     rooms[roomId].players.splice(leavingUser,1)
+     console.log("User left",rooms[roomId].players)
+     if(rooms[roomId].players.length===0){
+      delete rooms[roomId]
+      ws.send(JSON.stringify({type:"left"}))
+     }else{
+     ws.send(JSON.stringify({type:"left"}))
+     rooms[roomId].players.forEach((player)=>{
+      if( player.socket !== ws &&player.socket.readyState===WebSocket.OPEN){
+        player.socket.send(JSON.stringify({type:"user-left",room:rooms[roomId]}))
+      }
+    })}
+    }
+
   });
 });
 

@@ -24,11 +24,13 @@ export default {
   methods: {
     getUsernameForRoom() {
       const savedRooms = JSON.parse(localStorage.getItem("rooms"));
-      if (savedRooms[this.hash] && savedRooms.createdRoom === false) {
+      console.log(savedRooms)
+      if (savedRooms[this.hash] && savedRooms.createdRoom === false||savedRooms[this.hash] &&savedRooms.createdRoom===true) {
         this.existingUser = savedRooms[this.hash];
         this.$socketConnect.rejoin(this.existingUser, this.hash);
         this.hasUsername = true;
       }
+      console.log("jfdsj")
       this.initialJoin();
     },
     UserJoinRoom() {
@@ -37,17 +39,22 @@ export default {
           alert("Dieser Benutzername existiert bereits im Raum!");
           return;
         }
-
         localStorage.setItem(
           "rooms",
-          JSON.stringify({ [this.hash]: this.username })
+          JSON.stringify({ [this.hash]: this.username,createdRoom:false })
         );
-        this.initialJoin();
+        //this.initialJoin();
+        this.existingUser = this.username
+        this.hasUsername = true
+        console.log(this.hasUsername)
+        console.log(this.$socketConnect.gameLeft)
       });
     },
     initialJoin() {
+      console.log("bug gefunden")
       const savedRooms = JSON.parse(localStorage.getItem("rooms"));
-      savedRooms.createdRoom = false;
+      console.log(savedRooms)
+      //savedRooms.createdRoom = false;
       localStorage.setItem(
         "rooms",
         JSON.stringify({
@@ -69,11 +76,27 @@ export default {
       this.stagedStory = story;
       this.$socketConnect.stageStory(this.stagedStory, this.hash);
     },
+    leaveRoom(){
+      this.hasUsername = false
+      this.existingUser=null
+      console.log("leaving hasusername: ",this.hasUsername)
+      const savedRooms = JSON.parse(localStorage.getItem("rooms"));
+      localStorage.removeItem("rooms")
+      this.$socketConnect.leaveRoom(this.hash,savedRooms[this.hash])
+    }
   },
   computed: {
     userList() {
       return this.$socketConnect.userList;
     },
+  },
+  watch:{
+    '$socketConnect.gameLeft'(newVal){
+      if(newVal){
+        console.log("user is leaving")
+        this.$router.push({name:"WelcomePage"})
+      }
+    }
   },
   mounted() {
     this.getUsernameForRoom();
@@ -96,6 +119,7 @@ export default {
       <p v-if="this.$socketConnect.roundStarted" class="text-xl">
         Runde hat gestartet
       </p>
+      <button class="absolute rounded-lg right-1 p-3 shadow-sm bg-red-400 hover:bg-red-700 text-white transition-colors duration-200" @click="leaveRoom">Leave</button>
     </header>
 
     <ScrumMasterTools
