@@ -66,11 +66,7 @@ export default {
       this.$socketConnect.leaveRoom(this.hash, savedRooms[this.hash]);
     },
   },
-  computed: {
-    userList() {
-      return this.$socketConnect.userList;
-    },
-  },
+
   watch: {
     "$socketConnect.gameLeft"(newVal) {
       if (newVal) {
