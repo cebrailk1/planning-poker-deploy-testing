@@ -24,11 +24,9 @@ export default {
   methods: {
     getUsernameForRoom() {
       const savedRooms = JSON.parse(localStorage.getItem("rooms"));
-      console.log(savedRooms, "das ist save");
-      console.log("ausserhalb if");
+
       if (savedRooms && savedRooms[this.hash]) {
         this.existingUser = savedRooms[this.hash];
-        console.log("balalala");
         this.$socketConnect.rejoin(this.existingUser, this.hash);
         this.hasUsername = true;
       }
@@ -60,7 +58,6 @@ export default {
     },
     leaveRoom() {
       this.hasUsername = false;
-      console.log("leaving hasusername: ", this.hasUsername);
       const savedRooms = JSON.parse(localStorage.getItem("rooms"));
       localStorage.removeItem("rooms");
       this.$socketConnect.leaveRoom(this.hash, savedRooms[this.hash]);

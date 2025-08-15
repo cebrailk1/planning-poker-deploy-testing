@@ -51,13 +51,11 @@ class SocketConnecter {
           card: response.room.players[0].card,
         });
 
-        console.log("already true maybe", this.createdRoomBool); //fuck
         this.createdRoomBool = true;
       }
 
       if (response.type === "room-joined") {
         if (this.onRoomJoinedCallback) {
-          console.log("callback");
           response.room.players.forEach((player) => {
             this.userList.push({
               name: player.name,
