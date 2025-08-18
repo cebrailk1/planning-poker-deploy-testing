@@ -18,6 +18,7 @@ export default {
     };
   },
   methods: {
+    //
     getUsernameForRoom() {
       const savedRooms = JSON.parse(localStorage.getItem("rooms"));
       if (savedRooms[this.hash] && savedRooms.createdRoom === false) {
