@@ -18,7 +18,6 @@ export default {
   watch: {
     "$socketConnect.createdRoomBool"(newVal) {
       if (newVal) {
-        console.log("watcher triggered", this.$socketConnect.roomHash);
         localStorage.setItem(
           "rooms",
           JSON.stringify({
