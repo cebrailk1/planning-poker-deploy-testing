@@ -29,6 +29,7 @@ export default {
     };
   },
   methods: {
+    //
     getUsernameForRoom() {
       const savedRooms = JSON.parse(localStorage.getItem("rooms"));
 
