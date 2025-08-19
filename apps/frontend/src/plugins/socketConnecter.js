@@ -64,6 +64,7 @@ class SocketConnecter {
             });
           });
           //this.gameLeft = false
+          this.userRole = response.role
           this.storyList = response.stories;
           this.stagedStory = response.stagedStory;
           this.discussedStories = response.discussedStories;
@@ -162,10 +163,10 @@ class SocketConnecter {
     });
   }
 
-  joinRoom(roomId, user, callback) {
+  joinRoom(roomId, user,wantsVisitor, callback) {
     this.onRoomJoinedCallback = callback;
     this.connect(() => {
-      socket.send(JSON.stringify({ type: "join room", roomId, user }));
+      socket.send(JSON.stringify({ type: "join room", roomId, user,wantsVisitor }));
     });
   }
 

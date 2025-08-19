@@ -34,7 +34,7 @@ wss.on("connection", function connection(ws) {
     }
 
     if (type === "join room") {
-      const { roomId, user } = JSON.parse(data);
+      const { roomId, user,wantsVisitor } = JSON.parse(data);
 
       if (checkUserExists(rooms[roomId], user)) {
         ws.send(
@@ -52,13 +52,23 @@ wss.on("connection", function connection(ws) {
         );
         return;
       }
-      rooms[roomId].players.push({
-        name: user,
-        role: "Player",
-        socket: ws,
-        card: null,
-      });
+      if(wantsVisitor){
+        rooms[roomId].players.push({
+          name:user,
+          role:"Visitor",
+          socket:ws,
+          card:null
+        })
+      }else{
+          rooms[roomId].players.push({
+          name: user,
+          role: "Player",
+          socket: ws,
+          card: null,
+        });
+      }
       console.log("Räume", rooms);
+      const joinedUserIdx = rooms[roomId].players.findIndex((ele)=>ele.name===user)
 
       ws.send(
         JSON.stringify({
@@ -68,7 +78,8 @@ wss.on("connection", function connection(ws) {
           card: null,
           stories:rooms[roomId].stories,
           stagedStory: rooms[roomId].stagedStory,
-          discussedStories:rooms[roomId].discussedStories
+          discussedStories:rooms[roomId].discussedStories,
+          role:rooms[roomId].players[joinedUserIdx].role
         })
       );
 
@@ -82,7 +93,7 @@ wss.on("connection", function connection(ws) {
             JSON.stringify({
               type: "user-joined",
               name: user,
-              role: "Player",
+              role: rooms[roomId].players[joinedUserIdx].role,
               card: null,
             })
           );
