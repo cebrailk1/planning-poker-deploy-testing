@@ -23,6 +23,10 @@ export default {
 };
 </script>
 <template>
+  <div class="flex justify-center items-center h-screen">
+      <div
+        class="w-full max-w-6xl bg-green-700 border-[10px] border-yellow-400 rounded-full h-[500px] flex justify-center items-center"
+      >
   <div
     v-if="!this.$socketConnect.revealCards"
     v-for="(userCard, index) in userCardsList"
@@ -53,5 +57,7 @@ export default {
     >
       {{ this.getInitals(index) }}
     </div>
+  </div>
+  </div>
   </div>
 </template>

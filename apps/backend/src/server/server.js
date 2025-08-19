@@ -1,5 +1,5 @@
 import WebSocket, { WebSocketServer } from "ws";
-
+import { sendToEveryClient } from "../utils/sendToClients.js";
 const wss = new WebSocketServer({ port: 8080 });
 let rooms = {};//neue struktur  {hash:{player:[],roundstarted:bool}}
 wss.on("connection", function connection(ws) {
@@ -127,17 +127,9 @@ wss.on("connection", function connection(ws) {
           (player) => player.name === user
         );
       });
-      rooms[roomId].players.forEach((player) => {
-        if (player.socket.readyState === WebSocket.OPEN) {
-          player.socket.send(
-            JSON.stringify({
-              type: "set-card",
-              name: user,
-              card: currentPlayerChangedCard.card,
-            })
-          );
-        }
-      });
+
+      let payload = {type:"set-card",name:user,card:currentPlayerChangedCard.card}
+      sendToEveryClient(roomId,payload,rooms)
     }
 
     if (type === "start round") {
@@ -149,17 +141,12 @@ wss.on("connection", function connection(ws) {
       });
       console.log("runde startet alle Karten auf null", rooms[roomId]);
 
-      rooms[roomId].players.forEach((player) => {
-        if (player.socket.readyState === WebSocket.OPEN) {
-          player.socket.send(
-            JSON.stringify({
-              type: "started-round",
+
+      let payload = {type: "started-round",
               roundStarted: rooms[roomId].roundStarted,
-              room:rooms[roomId].players
-            })
-          );
-        }
-      });
+              room:rooms[roomId].players}
+
+      sendToEveryClient(roomId,payload,rooms)
     }
 
     if (type === "end round") {
@@ -172,35 +159,25 @@ wss.on("connection", function connection(ws) {
     rooms[roomId].stories[discussedStoryIndex].points = storyPoints
     rooms[roomId].discussedStories.push(rooms[roomId].stories[discussedStoryIndex])
     rooms[roomId].stories.splice(discussedStoryIndex,1)
-      rooms[roomId].players.forEach((player) => {
-        if (player.socket.readyState === WebSocket.OPEN) {
-          player.socket.send(
-            JSON.stringify({
-              type: "ended-round",
+
+      let payload = {type: "ended-round",
               roundEnded: rooms[roomId].roundStarted,
               stories:rooms[roomId].stories,
-              discussedStories:rooms[roomId].discussedStories
-            })
-          );
-        }
-      });
+              discussedStories:rooms[roomId].discussedStories}
+      sendToEveryClient(roomId,payload,rooms)
     }
 
     if(type==="set story"){
       const {story,roomId} = JSON.parse(data)
 
-      //rooms[roomId].stories = []
-      //rooms[roomId].stories.push(story)
       rooms[roomId].stories.push({name:story,points:null})
       console.log(rooms[roomId].stories)
-      rooms[roomId].players.forEach((player)=>{
-        if(player.socket.readyState === WebSocket.OPEN){
-          player.socket.send(JSON.stringify({
+      let payload = {
             type:"set-new-story",
             stories:rooms[roomId].stories
-          }))
-        }
-      })
+          }
+
+          sendToEveryClient(roomId,payload,rooms)
     }
 
     if(type === "stage story"){
@@ -208,11 +185,9 @@ wss.on("connection", function connection(ws) {
 
       rooms[roomId].stagedStory = story
       console.log(rooms[roomId].stagedStory)
-      rooms[roomId].players.forEach((player)=>{
-        if(player.socket.readyState === WebSocket.OPEN){
-          player.socket.send(JSON.stringify({type:"story-staged",story:rooms[roomId].stagedStory}))
-        }
-      })
+      let payload = {type:"story-staged",story:rooms[roomId].stagedStory}
+      sendToEveryClient(roomId,payload,rooms)
+
     }
 
     if(type === "start discussion"){
@@ -220,11 +195,37 @@ wss.on("connection", function connection(ws) {
 
       rooms[roomId].discussion = true
       console.log("starting discussionphase")
-      rooms[roomId].players.forEach((player)=>{
-        if(player.socket.readyState === WebSocket.OPEN){
-          player.socket.send(JSON.stringify({type:"discussion-started",discussion:rooms[roomId].discussion}))
-        }
-      })
+     let payload =  {type:"discussion-started",discussion:rooms[roomId].discussion}
+     sendToEveryClient(roomId,payload,rooms)
+
+    }
+
+    if(type === "leave room"){
+      const {roomId,user} = JSON.parse(data)
+    
+     const leavingUser = rooms[roomId].players.findIndex((player)=>player.name===user)
+
+      const isScrumMaster = checkUserRole(leavingUser,rooms[roomId].players)
+
+      if(isScrumMaster){
+        let payload = {type:"left"}
+        sendToEveryClient(roomId,payload,rooms)
+        delete rooms[roomId]
+        return
+     }
+
+     rooms[roomId].players.splice(leavingUser,1)
+     console.log("User left",rooms[roomId].players)
+     if(rooms[roomId].players.length===0){
+      delete rooms[roomId]
+      ws.send(JSON.stringify({type:"left"}))
+     }else{
+     ws.send(JSON.stringify({type:"left"}))
+     rooms[roomId].players.forEach((player)=>{
+      if( player.socket !== ws &&player.socket.readyState===WebSocket.OPEN){
+        player.socket.send(JSON.stringify({type:"user-left",room:rooms[roomId]}))
+      }
+    })}
     }
 
   });
@@ -242,4 +243,9 @@ function checkUserExists(room, user) {
   }
 }
 
-function sendToEveryClient() {}
+function checkUserRole(leavingUser,players){
+  if(players[leavingUser].role==="Scrum Master"){
+    return true
+  }
+  return false
+}
