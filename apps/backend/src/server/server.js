@@ -1,11 +1,13 @@
 import WebSocket, { WebSocketServer } from "ws";
 import { sendToEveryClient } from "../utils/sendToClients.js";
 import { exportGameData } from "../utils/exportData.js";
+import { exportGameData } from "../utils/exportData.js";
 import crypto from "crypto";
 
 const wss = new WebSocketServer({ port: 8080 });
-let rooms = {};//neue struktur  {hash:{player:[],roundstarted:bool}}
+let rooms = {}; // Struktur {hash:{players:[], roundStarted:bool}}
 const whitelist =/^[A-Za-z0-9]+$/
+
 wss.on("connection", function connection(ws) {
   ws.on("error", console.error);
 
@@ -13,6 +15,10 @@ wss.on("connection", function connection(ws) {
     const { username, type } = JSON.parse(data);
 
     if (type === "create room") {
+      if(!username.match(whitelist)){
+        ws.send(JSON.stringify({type:"wrong-format"}))
+        return
+      }
       if(!username.match(whitelist)){
         ws.send(JSON.stringify({type:"wrong-format"}))
         return
@@ -27,6 +33,7 @@ wss.on("connection", function connection(ws) {
         discussedStories: [],
       };
       rooms[roomId].players.push({
+        name: username.toLowerCase(),
         name: username.toLowerCase(),
         role: "Scrum Master",
         socket: ws,
@@ -44,6 +51,12 @@ wss.on("connection", function connection(ws) {
 
     if (type === "join room") {
       const { roomId, user,wantsVisitor } = JSON.parse(data);
+
+      if(!user.match(whitelist)){
+        ws.send(JSON.stringify({type:"wrong-format"}))
+        return
+      }
+      user.toLowerCase()
 
       if(!user.match(whitelist)){
         ws.send(JSON.stringify({type:"wrong-format"}))
@@ -332,14 +345,4 @@ function checkUserRole(leavingUser,players){
     return true
   }
   return false
-}
-
-
-function exportGameData(room){
-  const date = new Date()
-  let text = `# Ergebnisse PlaningPoker vom ${date.getDate()}.${date.getMonth()+1}.${date.getFullYear()} : \n`
-  for(let i = 0;i<room.discussedStories.length;i++){
-    text += `**${room.discussedStories[i].name}**: ${room.discussedStories[i].points} Points \n`
-  }
-  return text
 }
