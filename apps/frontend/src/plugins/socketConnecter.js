@@ -145,6 +145,10 @@ class SocketConnecter {
         console.log("spieler left");
         this.userList = response.room.players;
       }
+
+      if(response.type === "exported-data"){
+        navigator.clipboard.writeText(response.exportedData)
+      }
       if (response.type === "user-list-update") {
         this.userList = response.players;
       }
@@ -231,6 +235,12 @@ class SocketConnecter {
     this.connect(() => {
       socket.send(JSON.stringify({ type: "leave room", roomId, user }));
     });
+  }
+
+  exportRoomData(roomId){
+    this.connect(()=>{
+      socket.send(JSON.stringify({type: "copy stories",roomId}))
+    })
   }
   changeName(roomId, oldName, newName) {
     this.connect(() => {

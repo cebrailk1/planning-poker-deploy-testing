@@ -273,6 +273,13 @@ wss.on("connection", function connection(ws) {
         });
       }
     }
+
+    if(type === 'copy stories'){
+      const {roomId} = JSON.parse(data)
+      let exportedData =  exportGameData(rooms[roomId])
+      ws.send(JSON.stringify({type:"exported-data",exportedData}))
+    }
+
     if (type === "change-name") {
       const { roomId, oldName, newName } = JSON.parse(data);
 
@@ -320,6 +327,19 @@ function checkUserExists(room, user) {
   return false;
 }
 
-function checkUserRole(leavingUser, players) {
-  return players[leavingUser].role === "Scrum Master";
+function checkUserRole(leavingUser,players){
+  if(players[leavingUser].role==="Scrum Master"){
+    return true
+  }
+  return false
+}
+
+
+function exportGameData(room){
+  const date = new Date()
+  let text = `# Ergebnisse PlaningPoker vom ${date.getDate()}.${date.getMonth()+1}.${date.getFullYear()} : \n`
+  for(let i = 0;i<room.discussedStories.length;i++){
+    text += `**${room.discussedStories[i].name}**: ${room.discussedStories[i].points} Points \n`
+  }
+  return text
 }
