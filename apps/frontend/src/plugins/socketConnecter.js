@@ -264,30 +264,6 @@ class SocketConnecter {
       );
     });
   }
-  changeName(roomId, oldName, newName) {
-    this.connect(() => {
-      socket.send(
-        JSON.stringify({
-          type: "change-name",
-          roomId,
-          oldName,
-          newName,
-        })
-      );
-    });
-  }
-  changeName(roomId, oldName, newName) {
-    this.connect(() => {
-      socket.send(
-        JSON.stringify({
-          type: "change-name",
-          roomId,
-          oldName,
-          newName,
-        })
-      );
-    });
-  }
 
   exportRoomData(roomId){
     this.connect(()=>{

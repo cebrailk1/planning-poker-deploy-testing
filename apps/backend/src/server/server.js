@@ -1,7 +1,6 @@
 import WebSocket, { WebSocketServer } from "ws";
 import { sendToEveryClient } from "../utils/sendToClients.js";
 import { exportGameData } from "../utils/exportData.js";
-import { exportGameData } from "../utils/exportData.js";
 import crypto from "crypto";
 
 const wss = new WebSocketServer({ port: 8080 });
