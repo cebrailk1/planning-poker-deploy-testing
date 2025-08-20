@@ -16,6 +16,7 @@ export default {
     ScrumMasterTools,
     UserList,
     RoomInfoPanel,
+    RoomInfoPanel,
   },
   data() {
     return {
@@ -27,6 +28,7 @@ export default {
     };
   },
   methods: {
+    //
     //
     getUsernameForRoom() {
       const savedRooms = JSON.parse(localStorage.getItem("rooms"));
@@ -123,6 +125,11 @@ export default {
       :hash="this.hash"
       @name-updated="(newName) => (this.existingUser = newName)"
     />
+    <RoomInfoPanel
+      :existing-user="this.existingUser"
+      :hash="this.hash"
+      @name-updated="(newName) => (this.existingUser = newName)"
+    />
 
     <UserList></UserList>
 
@@ -134,6 +141,47 @@ export default {
     ></GameCards>
   </div>
 </template>
+<style scoped>
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(10deg);
+  }
+  50% {
+    transform: rotate(-10deg);
+  }
+  75% {
+    transform: rotate(8deg);
+  }
+}
+.animate-wiggle {
+  animation: wiggle 0.4s ease-in-out;
+}
+
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.3s ease;
+}
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(-5px);
+}
+.fade-slide-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-slide-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-5px);
+}
+</style>
 <style scoped>
 @keyframes wiggle {
   0%,
