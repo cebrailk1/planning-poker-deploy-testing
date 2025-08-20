@@ -106,6 +106,7 @@ export default {
         Leave
       </button>
     </header>
+        <button @click="this.$socketConnect.exportRoomData(this.hash)">Export data</button>
 
     <ScrumMasterTools
       :hash="this.hash"

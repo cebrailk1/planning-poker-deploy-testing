@@ -146,6 +146,10 @@ class SocketConnecter {
         console.log("spieler left");
         this.userList = response.room.players;
       }
+
+      if(response.type === "exported-data"){
+        navigator.clipboard.writeText(response.exportedData)
+      }
     };
 
     socket.onerror = (err) => {
@@ -212,5 +216,11 @@ class SocketConnecter {
     this.connect(() => {
       socket.send(JSON.stringify({ type: "leave room", roomId, user }));
     });
+  }
+
+  exportRoomData(roomId){
+    this.connect(()=>{
+      socket.send(JSON.stringify({type: "copy stories",roomId}))
+    })
   }
 }

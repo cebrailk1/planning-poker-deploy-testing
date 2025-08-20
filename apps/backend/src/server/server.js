@@ -239,6 +239,12 @@ wss.on("connection", function connection(ws) {
     })}
     }
 
+    if(type === 'copy stories'){
+      const {roomId} = JSON.parse(data)
+      let exportedData =  exportGameData(rooms[roomId])
+      ws.send(JSON.stringify({type:"exported-data",exportedData}))
+    }
+
   });
 });
 
@@ -259,4 +265,14 @@ function checkUserRole(leavingUser,players){
     return true
   }
   return false
+}
+
+
+function exportGameData(room){
+  const date = new Date()
+  let text = `# Ergebnisse PlaningPoker vom ${date.getDate()}.${date.getMonth()+1}.${date.getFullYear()} : \n`
+  for(let i = 0;i<room.discussedStories.length;i++){
+    text += `**${room.discussedStories[i].name}**: ${room.discussedStories[i].points} Points \n`
+  }
+  return text
 }
