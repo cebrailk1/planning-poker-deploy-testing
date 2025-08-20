@@ -176,12 +176,6 @@ wss.on("connection", function connection(ws) {
         card: currentPlayerChangedCard.card,
       };
       sendToEveryClient(roomId, payload, rooms);
-      let payload = {
-        type: "set-card",
-        name: user,
-        card: currentPlayerChangedCard.card,
-      };
-      sendToEveryClient(roomId, payload, rooms);
     }
 
     if (type === "start round") {
@@ -193,23 +187,17 @@ wss.on("connection", function connection(ws) {
       });
       console.log("runde startet alle Karten auf null", rooms[roomId]);
 
-      let payload = {
-        type: "started-round",
-        roundStarted: rooms[roomId].roundStarted,
-        room: rooms[roomId].players,
-      };
+
       let payload = {
         type: "started-round",
         roundStarted: rooms[roomId].roundStarted,
         room: rooms[roomId].players,
       };
 
-      sendToEveryClient(roomId, payload, rooms);
       sendToEveryClient(roomId, payload, rooms);
     }
 
     if (type === "end round") {
-      const { roomId, storyPoints, story } = JSON.parse(data);
       const { roomId, storyPoints, story } = JSON.parse(data);
 
       rooms[roomId].roundStarted = false;
@@ -223,24 +211,8 @@ wss.on("connection", function connection(ws) {
         rooms[roomId].stories[discussedStoryIndex]
       );
       rooms[roomId].stories.splice(discussedStoryIndex, 1);
-      rooms[roomId].discussion = false;
-      rooms[roomId].stagedStory = "";
-      let discussedStoryIndex = rooms[roomId].stories.findIndex(
-        (ele) => ele.name === story.name
-      );
-      rooms[roomId].stories[discussedStoryIndex].points = storyPoints;
-      rooms[roomId].discussedStories.push(
-        rooms[roomId].stories[discussedStoryIndex]
-      );
-      rooms[roomId].stories.splice(discussedStoryIndex, 1);
 
-      let payload = {
-        type: "ended-round",
-        roundEnded: rooms[roomId].roundStarted,
-        stories: rooms[roomId].stories,
-        discussedStories: rooms[roomId].discussedStories,
-      };
-      sendToEveryClient(roomId, payload, rooms);
+
       let payload = {
         type: "ended-round",
         roundEnded: rooms[roomId].roundStarted,
@@ -270,23 +242,14 @@ wss.on("connection", function connection(ws) {
         stories: rooms[roomId].stories,
       };
 
-      sendToEveryClient(roomId, payload, rooms);
-        type: "set-new-story",
-        stories: rooms[roomId].stories,
-      };
-
+    
       sendToEveryClient(roomId, payload, rooms);
     }
 
     if (type === "stage story") {
       const { story, roomId } = JSON.parse(data);
-    if (type === "stage story") {
-      const { story, roomId } = JSON.parse(data);
 
-      rooms[roomId].stagedStory = story;
-      console.log(rooms[roomId].stagedStory);
-      let payload = { type: "story-staged", story: rooms[roomId].stagedStory };
-      sendToEveryClient(roomId, payload, rooms);
+
       rooms[roomId].stagedStory = story;
       console.log(rooms[roomId].stagedStory);
       let payload = { type: "story-staged", story: rooms[roomId].stagedStory };
@@ -295,16 +258,7 @@ wss.on("connection", function connection(ws) {
 
     if (type === "start discussion") {
       const { roomId } = JSON.parse(data);
-    if (type === "start discussion") {
-      const { roomId } = JSON.parse(data);
 
-      rooms[roomId].discussion = true;
-      console.log("starting discussionphase");
-      let payload = {
-        type: "discussion-started",
-        discussion: rooms[roomId].discussion,
-      };
-      sendToEveryClient(roomId, payload, rooms);
       rooms[roomId].discussion = true;
       console.log("starting discussionphase");
       let payload = {
@@ -328,14 +282,7 @@ wss.on("connection", function connection(ws) {
       );
 
       const isScrumMaster = checkUserRole(leavingUser, rooms[roomId].players);
-      const isScrumMaster = checkUserRole(leavingUser, rooms[roomId].players);
 
-      if (isScrumMaster) {
-        let payload = { type: "left" };
-        sendToEveryClient(roomId, payload, rooms);
-        delete rooms[roomId];
-        return;
-      }
       if (isScrumMaster) {
         let payload = { type: "left" };
         sendToEveryClient(roomId, payload, rooms);
@@ -418,7 +365,7 @@ wss.on("connection", function connection(ws) {
         }
       });
     }
-  });
+  }});
 });
 
 function roomHasher() {
@@ -431,7 +378,6 @@ function checkUserExists(room, user) {
       return true;
     }
   }
-  return false;
   return false;
 }
 
