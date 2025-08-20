@@ -157,6 +157,7 @@ class SocketConnecter {
       }
 
       if(response.type === "exported-data"){
+        console.log(response.exportedData)
         navigator.clipboard.writeText(response.exportedData)
       }
 
@@ -169,9 +170,6 @@ class SocketConnecter {
         alert("Story already in backlog")
       ]
 
-      if (response.type === "user-list-update") {
-        this.userList = response.players;
-      }
       if (response.type === "user-list-update") {
         this.userList = response.players;
       }
@@ -258,6 +256,7 @@ class SocketConnecter {
   }
 
   exportRoomData(roomId){
+    console.log("exporting")
     this.connect(()=>{
       socket.send(JSON.stringify({type: "copy stories",roomId}))
     })
@@ -275,9 +274,5 @@ class SocketConnecter {
     });
   }
 
-  exportRoomData(roomId){
-    this.connect(()=>{
-      socket.send(JSON.stringify({type: "copy stories",roomId}))
-    })
-  }
+
 }
