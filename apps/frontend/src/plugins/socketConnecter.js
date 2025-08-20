@@ -150,6 +150,11 @@ class SocketConnecter {
       if(response.type === "exported-data"){
         navigator.clipboard.writeText(response.exportedData)
       }
+
+      if(response.type === "wrong-format"){
+        console.log(response.type)
+        alert("wrong format of Username")
+      }
     };
 
     socket.onerror = (err) => {

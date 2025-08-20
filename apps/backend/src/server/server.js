@@ -1,13 +1,19 @@
 import WebSocket, { WebSocketServer } from "ws";
 import { sendToEveryClient } from "../utils/sendToClients.js";
+import { exportGameData } from "../utils/exportData.js";
 const wss = new WebSocketServer({ port: 8080 });
 let rooms = {};//neue struktur  {hash:{player:[],roundstarted:bool}}
+const whitelist =/^[A-Za-z0-9]+$/
 wss.on("connection", function connection(ws) {
   ws.on("error", console.error);
   ws.on("message", function message(data, isBinary) {
     const { username, type } = JSON.parse(data);
 
     if (type === "create room") {
+      if(!username.match(whitelist)){
+        ws.send(JSON.stringify({type:"wrong-format"}))
+        return
+      }
       const roomId = roomHasher();
       rooms[roomId] = {
         players: [],
@@ -18,7 +24,7 @@ wss.on("connection", function connection(ws) {
         discussedStories:[]
       };
       rooms[roomId].players.push({
-        name: username,
+        name: username.toLowerCase(),
         role: "Scrum Master",
         socket: ws,
         card: null,
@@ -35,6 +41,12 @@ wss.on("connection", function connection(ws) {
 
     if (type === "join room") {
       const { roomId, user,wantsVisitor } = JSON.parse(data);
+
+      if(!user.match(whitelist)){
+        ws.send(JSON.stringify({type:"wrong-format"}))
+        return
+      }
+      user.toLowerCase()
 
       if (checkUserExists(rooms[roomId], user)) {
         ws.send(
@@ -265,14 +277,4 @@ function checkUserRole(leavingUser,players){
     return true
   }
   return false
-}
-
-
-function exportGameData(room){
-  const date = new Date()
-  let text = `# Ergebnisse PlaningPoker vom ${date.getDate()}.${date.getMonth()+1}.${date.getFullYear()} : \n`
-  for(let i = 0;i<room.discussedStories.length;i++){
-    text += `**${room.discussedStories[i].name}**: ${room.discussedStories[i].points} Points \n`
-  }
-  return text
 }
