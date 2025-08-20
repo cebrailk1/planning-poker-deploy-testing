@@ -26,6 +26,10 @@ export default {
       storyPoints: null,
       editMode: false,
       wigglePen: false,
+      stagedStory: null,
+      storyPoints: null,
+      editMode: false,
+      wigglePen: false,
     };
   },
   methods: {

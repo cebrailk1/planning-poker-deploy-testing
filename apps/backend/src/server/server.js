@@ -156,6 +156,7 @@ wss.on("connection", function connection(ws) {
 
     if (type === "end round") {
       const { roomId, storyPoints, story } = JSON.parse(data);
+      const { roomId, storyPoints, story } = JSON.parse(data);
 
       rooms[roomId].roundStarted = false;
       rooms[roomId].discussion = false;
@@ -278,8 +279,91 @@ wss.on("connection", function connection(ws) {
         }
       });
     }
-  });
-});
+
+    if (type === "set story") {
+      const { story, roomId } = JSON.parse(data);
+
+      rooms[roomId].stories.push({ name: story, points: null });
+      console.log(rooms[roomId].stories);
+      rooms[roomId].players.forEach((player) => {
+        if (player.socket.readyState === WebSocket.OPEN) {
+          player.socket.send(
+            JSON.stringify({
+              type: "set-new-story",
+              stories: rooms[roomId].stories,
+            })
+          );
+        }
+      });
+    }
+
+    if (type === "stage story") {
+      const { story, roomId } = JSON.parse(data);
+
+      rooms[roomId].stagedStory = story;
+      console.log(rooms[roomId].stagedStory);
+      rooms[roomId].players.forEach((player) => {
+        if (player.socket.readyState === WebSocket.OPEN) {
+          player.socket.send(
+            JSON.stringify({
+              type: "story-staged",
+              story: rooms[roomId].stagedStory,
+            })
+          );
+        }
+      });
+    }
+
+    if (type === "start discussion") {
+      const { roomId } = JSON.parse(data);
+
+      rooms[roomId].discussion = true;
+      console.log("starting discussionphase");
+      rooms[roomId].players.forEach((player) => {
+        if (player.socket.readyState === WebSocket.OPEN) {
+          player.socket.send(
+            JSON.stringify({
+              type: "discussion-started",
+              discussion: rooms[roomId].discussion,
+            })
+          );
+        }
+      });
+    }
+
+    if (type === "change-name") {
+      const { roomId, oldName, newName } = JSON.parse(data);
+
+      const player = rooms[roomId]?.players.find((p) => p.name === oldName);
+      if (!player) {
+        ws.send(
+          JSON.stringify({
+            type: "error",
+            message: "Spieler nicht gefunden",
+          })
+        );
+        return;
+      }
+
+      player.name = newName;
+
+      rooms[roomId].players.forEach((p) => {
+        if (p.socket.readyState === WebSocket.OPEN) {
+          p.socket.send(
+            JSON.stringify({
+              type: "user-list-update",
+              players: rooms[roomId].players.map((pl) => ({
+                name: pl.name,
+                role: pl.role,
+                card: pl.card,
+              })),
+            })
+          );
+        }
+      });
+    }
+
+    
 
 function roomHasher() {
   return crypto.randomUUID();
