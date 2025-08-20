@@ -1,11 +1,14 @@
 import WebSocket, { WebSocketServer } from "ws";
 import { sendToEveryClient } from "../utils/sendToClients.js";
 import { exportGameData } from "../utils/exportData.js";
+import crypto from "crypto";
+
 const wss = new WebSocketServer({ port: 8080 });
 let rooms = {};//neue struktur  {hash:{player:[],roundstarted:bool}}
 const whitelist =/^[A-Za-z0-9]+$/
 wss.on("connection", function connection(ws) {
   ws.on("error", console.error);
+
   ws.on("message", function message(data, isBinary) {
     const { username, type } = JSON.parse(data);
 
@@ -18,7 +21,7 @@ wss.on("connection", function connection(ws) {
       rooms[roomId] = {
         players: [],
         roundStarted: false,
-        stories: [], //{name,points}
+        stories: [], // {name, points}
         stagedStory: "",
         discussion: false,
         discussedStories: [],
@@ -121,7 +124,6 @@ wss.on("connection", function connection(ws) {
       if (rejoinedPlayer) {
         rejoinedPlayer.socket = ws;
         console.log("rejoining...", rooms[roomId]);
-        console.log(rooms[roomId]);
         ws.send(
           JSON.stringify({
             type: "user-rejoined",
@@ -140,11 +142,7 @@ wss.on("connection", function connection(ws) {
       let currentPlayerChangedCard;
       rooms[roomId].players.forEach((player) => {
         if (player.name === user) {
-          if (card === null) {
-            player.card = null;
-          } else {
-            player.card = card;
-          }
+          player.card = card === null ? null : card;
         }
         currentPlayerChangedCard = rooms[roomId].players.find(
           (player) => player.name === user
@@ -319,11 +317,9 @@ function checkUserExists(room, user) {
       return true;
     }
   }
+  return false;
 }
 
 function checkUserRole(leavingUser, players) {
-  if (players[leavingUser].role === "Scrum Master") {
-    return true;
-  }
-  return false;
+  return players[leavingUser].role === "Scrum Master";
 }
