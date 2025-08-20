@@ -212,8 +212,13 @@ wss.on("connection", function connection(ws) {
       sendToEveryClient(roomId, payload, rooms);
     }
 
-    if (type === "set story") {
-      const { story, roomId } = JSON.parse(data);
+    if(type==="set story"){
+      const {story,roomId} = JSON.parse(data)
+
+      if(rooms[roomId].stories.find((ele)=>ele.name===story)){
+        ws.send(JSON.stringify({type:"story-exists"}))
+        return
+      }
 
       if(rooms[roomId].stories.find((ele)=>ele.name===story)){
         ws.send(JSON.stringify({type:"story-exists"}))
