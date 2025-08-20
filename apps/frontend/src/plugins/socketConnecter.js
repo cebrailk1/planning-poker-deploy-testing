@@ -2,7 +2,6 @@ import { reactive } from "vue";
 
 export default {
   install: (app) => {
-    //const socketConnecter = reactive(new SocketConnecter())
     app.config.globalProperties.$socketConnect = new SocketConnecter();
   },
 };
@@ -17,6 +16,7 @@ class SocketConnecter {
     this.userList = []; //[{name,role,card}]
     this.userRole = null;
     this.storyList = [];
+    this.stagedStory = "";
     this.stagedStory = "";
     this.roundStarted = false;
     this.revealCards = false;
@@ -63,6 +63,9 @@ class SocketConnecter {
               card: player.card,
             });
           });
+          this.storyList = response.stories;
+          this.stagedStory = response.stagedStory;
+          this.discussedStories = response.discussedStories;
           //this.gameLeft = false
           this.storyList = response.stories;
           this.stagedStory = response.stagedStory;
@@ -96,6 +99,9 @@ class SocketConnecter {
         this.storyList = response.stories;
         this.stagedStory = response.stagedStory;
         this.discussedStories = response.discussedStories;
+        this.storyList = response.stories;
+        this.stagedStory = response.stagedStory;
+        this.discussedStories = response.discussedStories;
       }
 
       if (response.type === "set-card") {
@@ -108,6 +114,8 @@ class SocketConnecter {
 
       if (response.type === "started-round") {
         this.roundStarted = response.roundStarted;
+        this.revealCards = false;
+        this.userList = response.room;
         this.revealCards = false;
         this.userList = response.room;
       }
@@ -138,12 +146,18 @@ class SocketConnecter {
       if (response.type === "left") {
         console.log("YOU left");
         this.gameLeft = true;
-        socket.onclose()
+        socket.onclose();
       }
 
       if (response.type === "user-left") {
         console.log("spieler left");
         this.userList = response.room.players;
+      }
+      if (response.type === "user-list-update") {
+        this.userList = response.players;
+      }
+      if (response.type === "user-list-update") {
+        this.userList = response.players;
       }
     };
 
@@ -210,6 +224,18 @@ class SocketConnecter {
   leaveRoom(roomId, user) {
     this.connect(() => {
       socket.send(JSON.stringify({ type: "leave room", roomId, user }));
+    });
+  }
+  changeName(roomId, oldName, newName) {
+    this.connect(() => {
+      socket.send(
+        JSON.stringify({
+          type: "change-name",
+          roomId,
+          oldName,
+          newName,
+        })
+      );
     });
   }
 }
