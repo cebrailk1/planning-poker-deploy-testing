@@ -155,6 +155,11 @@ class SocketConnecter {
         console.log(response.type)
         alert("wrong format of Username")
       }
+
+      if(response.type === "story-exists")[
+        alert("Story already in backlog")
+      ]
+
     };
 
     socket.onerror = (err) => {
