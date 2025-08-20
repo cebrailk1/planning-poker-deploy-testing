@@ -166,9 +166,9 @@ class SocketConnecter {
         alert("wrong format of Username")
       }
 
-      if(response.type === "story-exists")[
+      if(response.type === "story-exists"){
         alert("Story already in backlog")
-      ]
+    }
 
       if (response.type === "user-list-update") {
         this.userList = response.players;
@@ -183,9 +183,6 @@ class SocketConnecter {
         alert("wrong format of Username")
       }
 
-      if(response.type === "story-exists")[
-        alert("Story already in backlog")
-      ]
 
     };
 
