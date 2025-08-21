@@ -110,8 +110,6 @@ class SocketConnecter {
         this.roundStarted = response.roundStarted;
         this.revealCards = false;
         this.userList = response.room;
-        this.revealCards = false;
-        this.userList = response.room;
       }
 
       if (response.type === "ended-round") {
@@ -140,7 +138,6 @@ class SocketConnecter {
       if (response.type === "left") {
         console.log("YOU left");
         this.gameLeft = true;
-        socket.onclose();
         socket.onclose();
       }
 
