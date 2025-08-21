@@ -11,12 +11,10 @@ class SocketConnecter {
   constructor() {
     this.roomHash;
     this.createdRoomBool = false;
-    this.onRoomCreatedCallback = null;
     this.onRoomJoinedCallback = null;
     this.userList = []; //[{name,role,card}]
     this.userRole = null;
     this.storyList = [];
-    this.stagedStory = "";
     this.stagedStory = "";
     this.roundStarted = false;
     this.revealCards = false;
