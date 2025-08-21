@@ -61,9 +61,7 @@ class SocketConnecter {
               card: player.card,
             });
           });
-          this.storyList = response.stories;
-          this.stagedStory = response.stagedStory;
-          this.discussedStories = response.discussedStories;
+
           //this.gameLeft = false
           this.userRole = response.role
           this.storyList = response.stories;
