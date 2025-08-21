@@ -96,9 +96,6 @@ class SocketConnecter {
         this.storyList = response.stories;
         this.stagedStory = response.stagedStory;
         this.discussedStories = response.discussedStories;
-        this.storyList = response.stories;
-        this.stagedStory = response.stagedStory;
-        this.discussedStories = response.discussedStories;
       }
 
       if (response.type === "set-card") {
