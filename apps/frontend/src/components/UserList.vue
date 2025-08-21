@@ -18,7 +18,7 @@ export default {
       <h2 class="text-2xl font-semibold mb-2">Spieler im Raum:</h2>
       <ul class="list-none list-inside space-y-1 text-lg text-white">
         <li v-for="user in userList" :key="user">
-          {{ user.name.toUpperCase() }} ({{ user.role }})
+          {{ user.name.toUpperCase() }} ({{ user.role==='Visitor'? user.role+'👀':user.role}})
         </li>
       </ul>
     </div>
