@@ -1,17 +1,25 @@
 import WebSocket, { WebSocketServer } from "ws";
 import { sendToEveryClient } from "../utils/sendToClients.js";
+import { exportGameData } from "../utils/exportData.js";
 import crypto from "crypto";
 
 const wss = new WebSocketServer({ port: 8080 });
 let rooms = {}; // Struktur {hash:{players:[], roundStarted:bool}}
+const whitelist =/^[A-Za-z0-9]+$/
 
 wss.on("connection", function connection(ws) {
   ws.on("error", console.error);
+
 
   ws.on("message", function message(data, isBinary) {
     const { username, type } = JSON.parse(data);
 
     if (type === "create room") {
+      if(!username.match(whitelist)){
+        ws.send(JSON.stringify({type:"wrong-format"}))
+        return
+      }
+
       const roomId = roomHasher();
       rooms[roomId] = {
         players: [],
@@ -22,7 +30,7 @@ wss.on("connection", function connection(ws) {
         discussedStories: [],
       };
       rooms[roomId].players.push({
-        name: username,
+        name: username.toLowerCase(),
         role: "Scrum Master",
         socket: ws,
         card: null,
@@ -38,14 +46,13 @@ wss.on("connection", function connection(ws) {
     }
 
     if (type === "join room") {
-      const { roomId, user } = JSON.parse(data);
+      const { roomId, user,wantsVisitor } = JSON.parse(data);
 
-      if (!rooms[roomId]) {
-        ws.send(
-          JSON.stringify({ type: "room-joined", error: "Raum nicht gefunden" })
-        );
-        return;
+      if(!user.match(whitelist)){
+        ws.send(JSON.stringify({type:"wrong-format"}))
+        return
       }
+      user.toLowerCase()
 
       if (checkUserExists(rooms[roomId], user)) {
         ws.send(
@@ -57,13 +64,29 @@ wss.on("connection", function connection(ws) {
         return;
       }
 
-      rooms[roomId].players.push({
-        name: user,
-        role: "Player",
-        socket: ws,
-        card: null,
-      });
+      if (!rooms[roomId]) {
+        ws.send(
+          JSON.stringify({ type: "room-joined", error: "Raum nicht gefunden" })
+        );
+        return;
+      }
+      if(wantsVisitor){
+        rooms[roomId].players.push({
+          name:user,
+          role:"Visitor",
+          socket:ws,
+          card:null
+        })
+      }else{
+          rooms[roomId].players.push({
+          name: user,
+          role: "Player",
+          socket: ws,
+          card: null,
+        });
+      }
       console.log("Räume", rooms);
+      const joinedUserIdx = rooms[roomId].players.findIndex((ele)=>ele.name===user)
 
       ws.send(
         JSON.stringify({
@@ -73,7 +96,8 @@ wss.on("connection", function connection(ws) {
           card: null,
           stories: rooms[roomId].stories,
           stagedStory: rooms[roomId].stagedStory,
-          discussedStories: rooms[roomId].discussedStories,
+          discussedStories:rooms[roomId].discussedStories,
+          role:rooms[roomId].players[joinedUserIdx].role
         })
       );
 
@@ -87,7 +111,7 @@ wss.on("connection", function connection(ws) {
             JSON.stringify({
               type: "user-joined",
               name: user,
-              role: "Player",
+              role: rooms[roomId].players[joinedUserIdx].role,
               card: null,
             })
           );
@@ -145,6 +169,7 @@ wss.on("connection", function connection(ws) {
       });
       console.log("runde startet alle Karten auf null", rooms[roomId]);
 
+
       let payload = {
         type: "started-round",
         roundStarted: rooms[roomId].roundStarted,
@@ -169,6 +194,7 @@ wss.on("connection", function connection(ws) {
       );
       rooms[roomId].stories.splice(discussedStoryIndex, 1);
 
+
       let payload = {
         type: "ended-round",
         roundEnded: rooms[roomId].roundStarted,
@@ -180,6 +206,11 @@ wss.on("connection", function connection(ws) {
 
     if (type === "set story") {
       const { story, roomId } = JSON.parse(data);
+
+      if(rooms[roomId].stories.find((ele)=>ele.name===story)){
+        ws.send(JSON.stringify({type:"story-exists"}))
+        return
+      }
 
       rooms[roomId].stories.push({ name: story, points: null });
       console.log(rooms[roomId].stories);
@@ -248,6 +279,12 @@ wss.on("connection", function connection(ws) {
       }
     }
 
+    if(type === 'copy stories'){
+      const {roomId} = JSON.parse(data)
+      let exportedData =  exportGameData(rooms[roomId])
+      ws.send(JSON.stringify({type:"exported-data",exportedData}))
+    } 
+
     if (type === "change-name") {
       const { roomId, oldName, newName } = JSON.parse(data);
 
@@ -278,8 +315,7 @@ wss.on("connection", function connection(ws) {
           );
         }
       });
-    }
-  });
+  }});
 });
 
 function roomHasher() {

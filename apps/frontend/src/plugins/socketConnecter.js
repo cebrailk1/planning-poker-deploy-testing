@@ -11,12 +11,10 @@ class SocketConnecter {
   constructor() {
     this.roomHash;
     this.createdRoomBool = false;
-    this.onRoomCreatedCallback = null;
     this.onRoomJoinedCallback = null;
     this.userList = []; //[{name,role,card}]
     this.userRole = null;
     this.storyList = [];
-    this.stagedStory = "";
     this.stagedStory = "";
     this.roundStarted = false;
     this.revealCards = false;
@@ -63,10 +61,9 @@ class SocketConnecter {
               card: player.card,
             });
           });
-          this.storyList = response.stories;
-          this.stagedStory = response.stagedStory;
-          this.discussedStories = response.discussedStories;
+
           //this.gameLeft = false
+          this.userRole = response.role
           this.storyList = response.stories;
           this.stagedStory = response.stagedStory;
           this.discussedStories = response.discussedStories;
@@ -99,9 +96,6 @@ class SocketConnecter {
         this.storyList = response.stories;
         this.stagedStory = response.stagedStory;
         this.discussedStories = response.discussedStories;
-        this.storyList = response.stories;
-        this.stagedStory = response.stagedStory;
-        this.discussedStories = response.discussedStories;
       }
 
       if (response.type === "set-card") {
@@ -114,8 +108,6 @@ class SocketConnecter {
 
       if (response.type === "started-round") {
         this.roundStarted = response.roundStarted;
-        this.revealCards = false;
-        this.userList = response.room;
         this.revealCards = false;
         this.userList = response.room;
       }
@@ -153,11 +145,27 @@ class SocketConnecter {
         console.log("spieler left");
         this.userList = response.room.players;
       }
+
+      if(response.type === "exported-data"){
+        console.log(response.exportedData)
+        navigator.clipboard.writeText(response.exportedData)
+      }
+
+      if(response.type === "wrong-format"){
+        console.log(response.type)
+        alert("wrong format of Username")
+      }
+
+      if(response.type === "story-exists"){
+        alert("Story already in backlog")
+    }
+
       if (response.type === "user-list-update") {
         this.userList = response.players;
       }
-      if (response.type === "user-list-update") {
-        this.userList = response.players;
+
+      if(response.type === "exported-data"){
+        navigator.clipboard.writeText(response.exportedData)
       }
     };
 
@@ -176,10 +184,10 @@ class SocketConnecter {
     });
   }
 
-  joinRoom(roomId, user, callback) {
+  joinRoom(roomId, user,wantsVisitor, callback) {
     this.onRoomJoinedCallback = callback;
     this.connect(() => {
-      socket.send(JSON.stringify({ type: "join room", roomId, user }));
+      socket.send(JSON.stringify({ type: "join room", roomId, user,wantsVisitor }));
     });
   }
 
@@ -226,6 +234,13 @@ class SocketConnecter {
       socket.send(JSON.stringify({ type: "leave room", roomId, user }));
     });
   }
+
+  exportRoomData(roomId){
+    console.log("exporting")
+    this.connect(()=>{
+      socket.send(JSON.stringify({type: "copy stories",roomId}))
+    })
+  }
   changeName(roomId, oldName, newName) {
     this.connect(() => {
       socket.send(
@@ -238,4 +253,6 @@ class SocketConnecter {
       );
     });
   }
+
+
 }
