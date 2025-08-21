@@ -1,22 +1,21 @@
 <script>
 export default {
-    props:['existingUser'],
+  props: ["existingUser"],
   data() {
     return {};
   },
   methods: {
     getInitals(index) {
-      let b = this.$socketConnect.userList.filter(
-        (player) => player.name !== this.existingUser
+      let firstLetter = this.$socketConnect.userList.filter(
+        (player) => player.role !== "Scrum Master"
       );
-      console.log(b[index]);
-      return b[index].name[0].toUpperCase();
+      return firstLetter[index].name[0].toUpperCase();
     },
   },
   computed: {
     userCardsList() {
       return this.$socketConnect.userList
-        .filter((player) => player.name !== this.existingUser)
+        .filter((player) => player.role !== "Scrum Master")
         .map((player) => player.card);
     },
   },
@@ -24,40 +23,40 @@ export default {
 </script>
 <template>
   <div class="flex justify-center items-center h-screen">
+    <div
+      class="w-full max-w-6xl bg-green-700 border-[10px] border-yellow-400 rounded-full h-[500px] flex justify-center items-center"
+    >
       <div
-        class="w-full max-w-6xl bg-green-700 border-[10px] border-yellow-400 rounded-full h-[500px] flex justify-center items-center"
+        v-if="!this.$socketConnect.revealCards"
+        v-for="(userCard, index) in userCardsList"
+        class="w-16 h-24 bg-white rounded-md border-2 border-gray-300 flex items-center justify-center cursor-pointer text-2xl font-bold text-gray-800 relative transition-all duration-200 hover:transform hover:-translate-y-1 hover:shadow-md active:scale-95 m-3"
+        :class="{
+          'border-yellow-400 shadow-lg bg-yellow-50 z-10': userCard !== null,
+        }"
       >
-  <div
-    v-if="!this.$socketConnect.revealCards"
-    v-for="(userCard, index) in userCardsList"
-    class="w-16 h-24 bg-white rounded-md border-2 border-gray-300 flex items-center justify-center cursor-pointer text-2xl font-bold text-gray-800 relative transition-all duration-200 hover:transform hover:-translate-y-1 hover:shadow-md active:scale-95 m-3"
-    :class="{
-      'border-yellow-400 shadow-lg bg-yellow-50 z-10': userCard !== null,
-    }"
-  >
-    ?
-    <div
-      class="absolute top-1 right-1 text-sm rounded-full border-2 border-black flex justify-center items-center w-5 h-5 bg-black text-white"
-    >
-      {{ this.getInitals(index) }}
-    </div>
-  </div>
+        ?
+        <div
+          class="absolute top-1 right-1 text-sm rounded-full border-2 border-black flex justify-center items-center w-5 h-5 bg-black text-white"
+        >
+          {{ this.getInitals(index) }}
+        </div>
+      </div>
 
-  <div
-    v-else
-    v-for="(userCard, index) in userCardsList"
-    class="w-16 h-24 bg-white rounded-md border-2 border-gray-300 flex items-center justify-center cursor-pointer text-2xl font-bold text-gray-800 relative transition-all duration-200 hover:transform hover:-translate-y-1 hover:shadow-md active:scale-95 m-3"
-    :class="{
-      'border-yellow-400 shadow-lg bg-yellow-50 z-10': userCard !== null,
-    }"
-  >
-   {{ userCard||"Keine Value" }}
-    <div
-      class="absolute top-1 right-1 text-sm rounded-full border-2 border-black flex justify-center items-center w-5 h-5 bg-black text-white"
-    >
-      {{ this.getInitals(index) }}
+      <div
+        v-else
+        v-for="(userCard, index) in userCardsList"
+        class="w-16 h-24 bg-white rounded-md border-2 border-gray-300 flex items-center justify-center cursor-pointer text-2xl font-bold text-gray-800 relative transition-all duration-200 hover:transform hover:-translate-y-1 hover:shadow-md active:scale-95 m-3"
+        :class="{
+          'border-yellow-400 shadow-lg bg-yellow-50 z-10': userCard !== null,
+        }"
+      >
+        {{ userCard || "Keine Value" }}
+        <div
+          class="absolute top-1 right-1 text-sm rounded-full border-2 border-black flex justify-center items-center w-5 h-5 bg-black text-white"
+        >
+          {{ this.getInitals(index) }}
+        </div>
+      </div>
     </div>
-  </div>
-  </div>
   </div>
 </template>
