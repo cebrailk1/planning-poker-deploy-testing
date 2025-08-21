@@ -6,10 +6,10 @@ export default {
   },
   methods: {
     getInitals(index) {
-      let b = this.$socketConnect.userList.filter(
+      let firstLetter = this.$socketConnect.userList.filter(
         (player) => player.role !== "Scrum Master"
       );
-      return b[index].name[0].toUpperCase();
+      return firstLetter[index].name[0].toUpperCase();
     },
   },
   computed: {
