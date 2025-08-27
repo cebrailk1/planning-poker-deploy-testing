@@ -72,9 +72,7 @@ export default {
 
     <div>
       <span class="font-semibold">Raum-Link: </span><br />
-      <p class="text-blue-200 underline break-all">
-        http://localhost:5173/room/{{ hash }}
-      </p>
+
       <img
         src="../assets/checklist.png"
         alt="Clipboard Icon"
