@@ -1,26 +1,23 @@
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-import GameRoom from './components/GameRoom.vue'
+import GameRoom from "./components/GameRoom.vue";
+import CreateRoom from "./components/CreateRoom.vue";
 export default {
-  data(){
-    return{
-      socket:null,
-      authenticated:false
-    }
+  data() {
+    return {
+      socket: null,
+      authenticated: false,
+    };
   },
   components: {
-    HelloWorld,
-    GameRoom
+    CreateRoom,
+    GameRoom,
   },
-  methods: {
-
-  },
-}
+  methods: {},
+};
 </script>
 
 <template>
-<div><RouterView></RouterView></div>
+  <div><RouterView></RouterView></div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
