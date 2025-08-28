@@ -63,7 +63,7 @@ export default {
     },
     setStageStory(story) {
       this.stagedStory = story;
-      this.$socketConnect.stageStory(this.stagedStory, this.hash);
+      this.$socketConnect.stageStory(story.name, this.hash);
     },
     leaveRoom() {
       this.hasUsername = false;
@@ -161,7 +161,8 @@ export default {
       class="flex justify-center items-center w-full py-4 bg-green-900 relative"
     >
       <h1 class="text-xl font-bold text-white">
-        Current Story: {{ this.$socketConnect.stagedStory.name }}
+        Current Story:
+        {{ this.$socketConnect.stagedStory?.name || "Keine Story ausgewählt" }}
       </h1>
       <p v-if="this.$socketConnect.roundStarted" class="text-xl ml-4">
         Runde hat gestartet
@@ -181,14 +182,23 @@ export default {
       Export data
     </button>
 
-    <RoomInfoPanel
-      :existing-user="this.existingUser"
-      :hash="this.hash"
-      @name-updated="(newName) => (this.existingUser = newName)"
-    />
+    <div class="flex space-x-4 mt-4 px-4">
+      <RoomInfoPanel
+        :existing-user="this.existingUser"
+        :hash="this.hash"
+        class="flex-shrink-0"
+        @name-updated="(newName) => (this.existingUser = newName)"
+      />
+
+      <ScrumMasterTools
+        v-if="$socketConnect.userRole === 'Scrum Master'"
+        :hash="this.hash"
+        :stagedStory="this.stagedStory"
+        style="margin-left: 575px"
+      />
+    </div>
 
     <UserList />
-    <ScrumMasterTools :hash="this.hash" :stagedStory="this.stagedStory" />
 
     <StoryBoard :hash="this.hash" @stage-story="setStageStory"></StoryBoard>
 
