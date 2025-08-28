@@ -131,10 +131,19 @@ wss.on("connection", function connection(ws) {
       );
       if (rejoinedPlayer) {
         rejoinedPlayer.socket = ws;
+
         ws.send(
           JSON.stringify({
             type: "user-rejoined",
-            room: rooms[roomId],
+            room: {
+              players: rooms[roomId].players.map((player) => ({
+                name: player.name,
+                role: player.role,
+                card: player.card,
+              })),
+              roundStarted: rooms[roomId].roundStarted,
+              discussion: rooms[roomId].discussion,
+            },
             role: rejoinedPlayer.role,
             stories: rooms[roomId].stories,
             stagedStory: rooms[roomId].stagedStory,
@@ -207,13 +216,15 @@ wss.on("connection", function connection(ws) {
     if (type === "end round") {
       const { roomId, storyPoints, story } = JSON.parse(data);
 
+      console.log("hello", JSON.parse(data));
+
       if (rooms[roomId].timerInterval) {
         clearInterval(rooms[roomId].timerInterval);
         rooms[roomId].timerInterval = null;
       }
       rooms[roomId].roundStarted = false;
       rooms[roomId].discussion = false;
-      rooms[roomId].stagedStory = "";
+      rooms[roomId].stagedStory = null;
       rooms[roomId].timerValue = 0;
       sendToEveryClient(roomId, { type: "timer-update", timerValue: 0 }, rooms);
 
@@ -254,9 +265,13 @@ wss.on("connection", function connection(ws) {
 
     if (type === "stage story") {
       const { story, roomId } = JSON.parse(data);
-      rooms[roomId].stagedStory = story;
 
-      let payload = { type: "story-staged", story: rooms[roomId].stagedStory };
+      const storyObj = rooms[roomId].stories.find((s) => s.name === story);
+      if (!storyObj) return;
+
+      rooms[roomId].stagedStory = storyObj;
+
+      let payload = { type: "story-staged", story: storyObj };
       sendToEveryClient(roomId, payload, rooms);
     }
 
