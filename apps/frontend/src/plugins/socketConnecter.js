@@ -58,6 +58,7 @@ class SocketConnecter {
 
       if (response.type === "room-joined") {
         if (this.onRoomJoinedCallback) {
+          console.log(response, "das ist res");
           response.room.players.forEach((player) => {
             this.userList.push({
               name: player.name,
@@ -83,7 +84,6 @@ class SocketConnecter {
         });
       }
 
-
       if (response.type === "user-exists") {
         if (this.onRoomJoinedCallback) {
           this.onRoomJoinedCallback({
@@ -93,8 +93,6 @@ class SocketConnecter {
         }
       }
 
-
-
       if (response.type === "user-rejoined") {
         this.userList = response.room.players;
         this.userRole = response.role;
@@ -102,6 +100,8 @@ class SocketConnecter {
         this.storyList = response.stories;
         this.stagedStory = response.stagedStory;
         this.discussedStories = response.discussedStories;
+
+        this.revealCards = response.room.discussion || false;
       }
 
       if (response.type === "set-card") {
@@ -123,7 +123,8 @@ class SocketConnecter {
         this.storyList = response.stories;
         this.discussionPhase = false;
         this.discussedStories = response.discussedStories;
-        this.stagedStory = "";
+        this.stagedStory = null;
+        this.revealCards = false;
       }
 
       if (response.type === "set-new-story") {
