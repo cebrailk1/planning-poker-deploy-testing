@@ -119,12 +119,13 @@ class SocketConnecter {
       }
 
       if (response.type === "ended-round") {
-        this.roundStarted = response.roundEnded;
+        this.roundStarted = false;
         this.storyList = response.stories;
         this.discussionPhase = false;
         this.discussedStories = response.discussedStories;
         this.stagedStory = null;
         this.revealCards = false;
+        this.userList.forEach((p) => (p.card = null));
       }
 
       if (response.type === "estimate-chosen") {
@@ -135,6 +136,7 @@ class SocketConnecter {
         this.discussedStories = response.discussedStories;
         this.stagedStory = null;
         this.timerValue = 0;
+        this.userList.forEach((p) => (p.card = null));
       }
 
       if (response.type === "set-new-story") {
