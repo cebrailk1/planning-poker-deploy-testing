@@ -5,6 +5,7 @@ import {
   roomHasher,
   checkUserExists,
   checkUserRole,
+  resetRoomVariableAfterFinishedRound,
 } from "../utils/roomUtils.js";
 
 const wss = new WebSocketServer({ port: 8080 });
@@ -222,10 +223,8 @@ wss.on("connection", function connection(ws) {
         clearInterval(rooms[roomId].timerInterval);
         rooms[roomId].timerInterval = null;
       }
-      rooms[roomId].roundStarted = false;
-      rooms[roomId].discussion = false;
-      rooms[roomId].stagedStory = null;
-      rooms[roomId].timerValue = 0;
+      resetRoomVariableAfterFinishedRound(rooms, roomId);
+
       sendToEveryClient(roomId, { type: "timer-update", timerValue: 0 }, rooms);
 
       let discussedStoryIndex = rooms[roomId].stories.findIndex(
@@ -239,7 +238,7 @@ wss.on("connection", function connection(ws) {
 
       let payload = {
         type: "ended-round",
-        roundEnded: rooms[roomId].roundStarted,
+        roundEnded: false,
         stories: rooms[roomId].stories,
         discussedStories: rooms[roomId].discussedStories,
       };
@@ -254,10 +253,8 @@ wss.on("connection", function connection(ws) {
         rooms[roomId].timerInterval = null;
       }
 
-      rooms[roomId].roundStarted = false;
-      rooms[roomId].discussion = false;
-      rooms[roomId].stagedStory = null;
-      rooms[roomId].timerValue = 0;
+      resetRoomVariableAfterFinishedRound(rooms, roomId);
+
       sendToEveryClient(roomId, { type: "timer-update", timerValue: 0 }, rooms);
 
       let discussedStoryIndex = rooms[roomId].stories.findIndex(
