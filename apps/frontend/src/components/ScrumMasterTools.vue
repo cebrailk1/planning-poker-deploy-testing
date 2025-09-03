@@ -103,12 +103,18 @@ export default {
 
         <div class="flex space-x-2">
           <input
-            class="flex-grow placeholder:text-gray-400 text-xs border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+            class="flex-grow placeholder:text-black text-black text-xs border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-200"
             type="text"
             placeholder="Neue Story hinzufügen..."
             v-model="story"
             @keyup.enter="addStory"
+            :class="
+              story
+                ? 'bg-green-100 border-green-400'
+                : 'bg-white border-gray-300'
+            "
           />
+
           <button
             @click="addStory"
             class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors duration-200 flex items-center justify-center whitespace-nowrap min-w-[80px]"

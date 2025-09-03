@@ -25,6 +25,7 @@ export default {
       existingUser: null,
       stagedStory: null,
       wantsVisitor: false,
+      copySuccess: false,
     };
   },
   methods: {
@@ -71,6 +72,19 @@ export default {
       localStorage.removeItem("rooms");
       this.$socketConnect.leaveRoom(this.hash, savedRooms[this.hash]);
     },
+    async exportData() {
+      try {
+        const data = await this.$socketConnect.exportRoomData(this.hash);
+        await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+        this.copySuccess = true;
+
+        setTimeout(() => {
+          this.copySuccess = false;
+        }, 2000);
+      } catch (err) {
+        console.error("Export fehlgeschlagen:", err);
+      }
+    },
   },
   computed: {
     formattedTimer() {
@@ -96,7 +110,7 @@ export default {
 </script>
 
 <template>
-  <div v-if="!this.hasUsername">
+  <div v-if="!hasUsername">
     <div
       class="relative flex items-center justify-center min-h-screen bg-green-900"
     >
@@ -158,58 +172,64 @@ export default {
     class="relative min-h-screen bg-green-800 text-white overflow-hidden"
   >
     <header
-      class="flex justify-center items-center w-full py-4 bg-green-900 relative"
+      class="flex justify-between items-center w-full py-4 px-4 bg-green-900 relative"
     >
-      <h1 class="text-xl font-bold text-white">
-        Current Story:
-        {{ this.$socketConnect.stagedStory?.name || "Keine Story ausgewählt" }}
-      </h1>
-      <p v-if="this.$socketConnect.roundStarted" class="text-xl ml-4">
-        Runde hat gestartet
-      </p>
-      <p v-if="this.$socketConnect.roundStarted" class="text-xl ml-4">
-        Timer: {{ formattedTimer }}
-      </p>
+      <div class="flex flex-col items-start">
+        <button
+          @click="exportData"
+          class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg shadow-sm transition duration-200 text-sm"
+        >
+          Export Data
+        </button>
+        <span
+          v-if="copySuccess"
+          class="mt-1 bg-green-200 text-green-900 px-2 py-1 rounded-lg shadow text-xs animate-bounce"
+        >
+          ✅ Kopiert!
+        </span>
+      </div>
+
+      <div class="text-center">
+        <h1 class="text-xl font-bold text-white">
+          Current Story:
+          {{ $socketConnect.stagedStory?.name || "Keine Story ausgewählt" }}
+        </h1>
+        <p v-if="$socketConnect.roundStarted" class="text-lg mt-1">
+          Runde hat gestartet | Timer: {{ formattedTimer }}
+        </p>
+      </div>
+
       <button
-        class="absolute rounded-lg right-1 p-3 shadow-sm bg-red-400 hover:bg-red-700 text-white transition-colors duration-200"
+        class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg shadow-sm transition duration-200 text-sm"
         @click="leaveRoom"
       >
         Leave
       </button>
     </header>
 
-    <button @click="this.$socketConnect.exportRoomData(this.hash)">
-      Export data
-    </button>
-
     <div class="flex space-x-4 mt-4 px-4">
       <RoomInfoPanel
-        :existing-user="this.existingUser"
-        :hash="this.hash"
+        :existing-user="existingUser"
+        :hash="hash"
         class="flex-shrink-0"
-        @name-updated="(newName) => (this.existingUser = newName)"
+        @name-updated="(newName) => (existingUser = newName)"
       />
-
       <ScrumMasterTools
         v-if="$socketConnect.userRole === 'Scrum Master'"
-        :hash="this.hash"
-        :stagedStory="this.stagedStory"
+        :hash="hash"
+        :stagedStory="stagedStory"
         style="margin-left: 575px"
       />
     </div>
 
     <UserList />
-
-    <StoryBoard :hash="this.hash" @stage-story="setStageStory"></StoryBoard>
-
+    <StoryBoard :hash="hash" @stage-story="setStageStory"></StoryBoard>
     <DoneStories />
-
     <OpponentCard :existingUser="existingUser" />
-
     <GameCards
       v-if="
-        this.$socketConnect.userRole !== 'Scrum Master' &&
-        this.$socketConnect.userRole !== 'Visitor'
+        $socketConnect.userRole !== 'Scrum Master' &&
+        $socketConnect.userRole !== 'Visitor'
       "
       @card="setCard"
     />
