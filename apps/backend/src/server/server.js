@@ -246,6 +246,42 @@ wss.on("connection", function connection(ws) {
       sendToEveryClient(roomId, payload, rooms);
     }
 
+    if (type === "choose estimate") {
+      const { roomId, storyPoints, story } = JSON.parse(data);
+
+      if (rooms[roomId].timerInterval) {
+        clearInterval(rooms[roomId].timerInterval);
+        rooms[roomId].timerInterval = null;
+      }
+
+      rooms[roomId].roundStarted = false;
+      rooms[roomId].discussion = false;
+      rooms[roomId].stagedStory = null;
+      rooms[roomId].timerValue = 0;
+      sendToEveryClient(roomId, { type: "timer-update", timerValue: 0 }, rooms);
+
+      let discussedStoryIndex = rooms[roomId].stories.findIndex(
+        (ele) => ele.name === story.name
+      );
+
+      if (discussedStoryIndex !== -1) {
+        rooms[roomId].stories[discussedStoryIndex].points = storyPoints;
+        rooms[roomId].discussedStories.push(
+          rooms[roomId].stories[discussedStoryIndex]
+        );
+        rooms[roomId].stories.splice(discussedStoryIndex, 1);
+      }
+
+      rooms[roomId].players.forEach((player) => (player.card = null));
+
+      let payload = {
+        type: "estimate-chosen",
+        stories: rooms[roomId].stories,
+        discussedStories: rooms[roomId].discussedStories,
+      };
+      sendToEveryClient(roomId, payload, rooms);
+    }
+
     if (type === "set story") {
       const { story, roomId } = JSON.parse(data);
 
