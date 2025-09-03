@@ -1,9 +1,6 @@
 <script>
 export default {
   props: ["existingUser"],
-  data() {
-    return {};
-  },
   methods: {
     getInitals(index) {
       let firstLetter = this.$socketConnect.userList.filter(
@@ -35,6 +32,13 @@ export default {
     },
     isDiscussionPhase() {
       return this.$socketConnect.discussionPhase;
+    },
+  },
+  watch: {
+    "$socketConnect.roundStarted"(newVal, oldVal) {
+      if (oldVal === true && newVal === false) {
+        this.$socketConnect.userList.forEach((p) => (p.card = null));
+      }
     },
   },
 };
