@@ -127,6 +127,16 @@ class SocketConnecter {
         this.revealCards = false;
       }
 
+      if (response.type === "estimate-chosen") {
+        this.roundStarted = false;
+        this.discussionPhase = false;
+        this.revealCards = false;
+        this.storyList = response.stories;
+        this.discussedStories = response.discussedStories;
+        this.stagedStory = null;
+        this.timerValue = 0;
+      }
+
       if (response.type === "set-new-story") {
         this.storyList = response.stories;
       }
@@ -214,6 +224,14 @@ class SocketConnecter {
     this.connect(() => {
       socket.send(
         JSON.stringify({ type: "end round", roomId, storyPoints, story })
+      );
+    });
+  }
+
+  chooseEstimate(story, storyPoints, roomId) {
+    this.connect(() => {
+      socket.send(
+        JSON.stringify({ type: "choose estimate", roomId, storyPoints, story })
       );
     });
   }
