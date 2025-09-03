@@ -149,7 +149,6 @@ export default {
               >
                 {{ story.points }} Punkte ✅
               </span>
-              <span v-else class="text-yellow-400 text-xs">Nicht bewertet</span>
             </div>
           </div>
         </div>
