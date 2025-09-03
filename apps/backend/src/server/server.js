@@ -5,6 +5,7 @@ import {
   roomHasher,
   checkUserExists,
   checkUserRole,
+  resetRoomVariableAfterFinishedRound,
 } from "../utils/roomUtils.js";
 
 const wss = new WebSocketServer({ port: 8080 });
@@ -131,10 +132,19 @@ wss.on("connection", function connection(ws) {
       );
       if (rejoinedPlayer) {
         rejoinedPlayer.socket = ws;
+
         ws.send(
           JSON.stringify({
             type: "user-rejoined",
-            room: rooms[roomId],
+            room: {
+              players: rooms[roomId].players.map((player) => ({
+                name: player.name,
+                role: player.role,
+                card: player.card,
+              })),
+              roundStarted: rooms[roomId].roundStarted,
+              discussion: rooms[roomId].discussion,
+            },
             role: rejoinedPlayer.role,
             stories: rooms[roomId].stories,
             stagedStory: rooms[roomId].stagedStory,
@@ -207,14 +217,14 @@ wss.on("connection", function connection(ws) {
     if (type === "end round") {
       const { roomId, storyPoints, story } = JSON.parse(data);
 
+      console.log("hello", JSON.parse(data));
+
       if (rooms[roomId].timerInterval) {
         clearInterval(rooms[roomId].timerInterval);
         rooms[roomId].timerInterval = null;
       }
-      rooms[roomId].roundStarted = false;
-      rooms[roomId].discussion = false;
-      rooms[roomId].stagedStory = "";
-      rooms[roomId].timerValue = 0;
+      resetRoomVariableAfterFinishedRound(rooms, roomId);
+
       sendToEveryClient(roomId, { type: "timer-update", timerValue: 0 }, rooms);
 
       let discussedStoryIndex = rooms[roomId].stories.findIndex(
@@ -228,7 +238,41 @@ wss.on("connection", function connection(ws) {
 
       let payload = {
         type: "ended-round",
-        roundEnded: rooms[roomId].roundStarted,
+        roundEnded: false,
+        stories: rooms[roomId].stories,
+        discussedStories: rooms[roomId].discussedStories,
+      };
+      sendToEveryClient(roomId, payload, rooms);
+    }
+
+    if (type === "choose estimate") {
+      const { roomId, storyPoints, story } = JSON.parse(data);
+
+      if (rooms[roomId].timerInterval) {
+        clearInterval(rooms[roomId].timerInterval);
+        rooms[roomId].timerInterval = null;
+      }
+
+      resetRoomVariableAfterFinishedRound(rooms, roomId);
+
+      sendToEveryClient(roomId, { type: "timer-update", timerValue: 0 }, rooms);
+
+      let discussedStoryIndex = rooms[roomId].stories.findIndex(
+        (ele) => ele.name === story.name
+      );
+
+      if (discussedStoryIndex !== -1) {
+        rooms[roomId].stories[discussedStoryIndex].points = storyPoints;
+        rooms[roomId].discussedStories.push(
+          rooms[roomId].stories[discussedStoryIndex]
+        );
+        rooms[roomId].stories.splice(discussedStoryIndex, 1);
+      }
+
+      rooms[roomId].players.forEach((player) => (player.card = null));
+
+      let payload = {
+        type: "estimate-chosen",
         stories: rooms[roomId].stories,
         discussedStories: rooms[roomId].discussedStories,
       };
@@ -254,9 +298,13 @@ wss.on("connection", function connection(ws) {
 
     if (type === "stage story") {
       const { story, roomId } = JSON.parse(data);
-      rooms[roomId].stagedStory = story;
 
-      let payload = { type: "story-staged", story: rooms[roomId].stagedStory };
+      const storyObj = rooms[roomId].stories.find((s) => s.name === story);
+      if (!storyObj) return;
+
+      rooms[roomId].stagedStory = storyObj;
+
+      let payload = { type: "story-staged", story: storyObj };
       sendToEveryClient(roomId, payload, rooms);
     }
 

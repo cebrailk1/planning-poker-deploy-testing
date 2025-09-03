@@ -12,3 +12,16 @@ export function checkUserExists(room, user) {
 export function checkUserRole(leavingUserIdx, players) {
   return players[leavingUserIdx]?.role === "Scrum Master";
 }
+
+export function resetRoomVariableAfterFinishedRound(rooms, roomId) {
+  if (!rooms[roomId]) return;
+
+  rooms[roomId].roundStarted = false;
+  rooms[roomId].discussion = false;
+  rooms[roomId].stagedStory = null;
+  rooms[roomId].timerValue = 0;
+
+  rooms[roomId].players.forEach((player) => {
+    player.card = null;
+  });
+}

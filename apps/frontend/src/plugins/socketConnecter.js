@@ -58,6 +58,7 @@ class SocketConnecter {
 
       if (response.type === "room-joined") {
         if (this.onRoomJoinedCallback) {
+          console.log(response, "das ist res");
           response.room.players.forEach((player) => {
             this.userList.push({
               name: player.name,
@@ -83,7 +84,6 @@ class SocketConnecter {
         });
       }
 
-
       if (response.type === "user-exists") {
         if (this.onRoomJoinedCallback) {
           this.onRoomJoinedCallback({
@@ -93,8 +93,6 @@ class SocketConnecter {
         }
       }
 
-
-
       if (response.type === "user-rejoined") {
         this.userList = response.room.players;
         this.userRole = response.role;
@@ -102,6 +100,8 @@ class SocketConnecter {
         this.storyList = response.stories;
         this.stagedStory = response.stagedStory;
         this.discussedStories = response.discussedStories;
+
+        this.revealCards = response.room.discussion || false;
       }
 
       if (response.type === "set-card") {
@@ -119,11 +119,24 @@ class SocketConnecter {
       }
 
       if (response.type === "ended-round") {
-        this.roundStarted = response.roundEnded;
+        this.roundStarted = false;
         this.storyList = response.stories;
         this.discussionPhase = false;
         this.discussedStories = response.discussedStories;
-        this.stagedStory = "";
+        this.stagedStory = null;
+        this.revealCards = false;
+        this.userList.forEach((p) => (p.card = null));
+      }
+
+      if (response.type === "estimate-chosen") {
+        this.roundStarted = false;
+        this.discussionPhase = false;
+        this.revealCards = false;
+        this.storyList = response.stories;
+        this.discussedStories = response.discussedStories;
+        this.stagedStory = null;
+        this.timerValue = 0;
+        this.userList.forEach((p) => (p.card = null));
       }
 
       if (response.type === "set-new-story") {
@@ -213,6 +226,14 @@ class SocketConnecter {
     this.connect(() => {
       socket.send(
         JSON.stringify({ type: "end round", roomId, storyPoints, story })
+      );
+    });
+  }
+
+  chooseEstimate(story, storyPoints, roomId) {
+    this.connect(() => {
+      socket.send(
+        JSON.stringify({ type: "choose estimate", roomId, storyPoints, story })
       );
     });
   }
