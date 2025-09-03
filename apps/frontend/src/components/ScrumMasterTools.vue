@@ -6,9 +6,12 @@ export default {
       storyPoints: null,
       story: "",
       timerEnabled: false,
+      timerMinutesInput: 1,
+      timerSecondsInput: 0,
       timerSeconds: 60,
     };
   },
+
   methods: {
     addStory() {
       if (this.story.trim() === "") {
@@ -70,6 +73,18 @@ export default {
       setTimeout(() => {
         toast.remove();
       }, 3000);
+    },
+  },
+  watch: {
+    timerMinutesInput(newVal) {
+      this.timerSeconds = newVal * 60 + this.timerSecondsInput;
+    },
+    timerSecondsInput(newVal) {
+      this.timerSeconds = this.timerMinutesInput * 60 + newVal;
+    },
+    timerSeconds(newVal) {
+      this.timerMinutesInput = Math.floor(newVal / 60);
+      this.timerSecondsInput = newVal % 60;
     },
   },
 };
@@ -157,7 +172,6 @@ export default {
           </svg>
           Timer
         </h3>
-
         <div class="flex items-center space-x-2 mb-2">
           <label class="relative inline-flex items-center cursor-pointer">
             <input
@@ -170,6 +184,29 @@ export default {
             ></div>
           </label>
           <span class="text-xs font-medium text-gray-700">Aktivieren</span>
+
+          <input
+            v-if="timerEnabled"
+            type="number"
+            v-model.number="timerMinutesInput"
+            min="0"
+            max="60"
+            placeholder="Min"
+            class="flex-grow placeholder:text-black text-black text-xs border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-200"
+          />
+
+          <span v-if="timerEnabled" class="text-xs font-medium">:</span>
+
+          <input
+            v-if="timerEnabled"
+            type="number"
+            v-model.number="timerSecondsInput"
+            min="0"
+            max="59"
+            step="5"
+            placeholder="Sek"
+            class="flex-grow placeholder:text-black text-black text-xs border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-200"
+          />
         </div>
 
         <div v-if="timerEnabled" class="flex items-center space-x-2">
