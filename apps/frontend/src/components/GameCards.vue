@@ -11,27 +11,24 @@ export default {
     toggleCard(card) {
       if (this.$socketConnect.roundStarted) {
         if (this.selectedCard === card) {
-          this.selectedCard = null;
-          this.$emit("card", null);
+          this.resetCard();
         } else {
           this.selectedCard = card;
           this.$emit("card", card);
         }
       }
     },
+    resetCard() {
+      this.selectedCard = null;
+      this.$emit("card", null);
+    },
   },
   watch: {
     "$socketConnect.roundStarted"(newVal, oldVal) {
-      if (oldVal === true && newVal === false) {
-        this.selectedCard = null;
-        this.$emit("card", null);
-      }
+      if (oldVal && !newVal) this.resetCard();
     },
     "$socketConnect.revealCards"(newVal, oldVal) {
-      if (oldVal === true && newVal === false) {
-        this.selectedCard = null;
-        this.$emit("card", null);
-      }
+      if (oldVal && !newVal) this.resetCard();
     },
   },
 };
