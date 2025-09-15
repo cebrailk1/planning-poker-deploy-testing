@@ -68,21 +68,27 @@ export default {
 
       <div
         v-else
-        v-for="(userCard, index) in userCardsList"
-        :key="`revealed-${index}`"
+        v-for="(votingArr, key) in this.$socketConnect.doppelteKarten"
+        
         class="flex flex-col items-center m-3"
       >
-        <div
-          class="w-16 h-24 bg-white rounded-md border-2 border-gray-300 flex items-center justify-center cursor-pointer text-2xl font-bold text-gray-800 relative transition-all duration-200 hover:transform hover:-translate-y-1 hover:shadow-md active:scale-95"
-          :class="{
-            'border-yellow-400 shadow-lg bg-yellow-50 z-10': userCard !== null,
-          }"
-        >
-          {{ userCard || "Keine Value" }}
+        <div class="relative h-36 flex justify-center">
           <div
-            class="absolute top-1 right-1 text-sm rounded-full border-2 border-black flex justify-center items-center w-5 h-5 bg-black text-white"
+            class="w-16 h-24 bg-white rounded-md border-2 border-gray-300 flex absolute items-center justify-center cursor-pointer text-2xl font-bold text-gray-800 transition-all duration-200 hover:transform hover:-translate-y-1 hover:shadow-md active:scale-95"
+            :class="{
+              'border-yellow-400 shadow-lg bg-yellow-50 z-10':
+                userCard !== null,
+            }"
+            v-for="(user, index) in votingArr" :style="'top:'+index * 30+'px'"
           >
-            {{ this.getInitals(index) }}
+            <div class="relative flex w-full justify-center items-center h-24">
+              {{ key }}
+              <div
+                class="absolute top-1 right-1 text-sm rounded-full border-2 border-black flex justify-center items-center w-5 h-5 bg-black text-white"
+              >
+                {{ user.name[0] }}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -90,10 +96,9 @@ export default {
           v-if="
             isScrumMaster &&
             isDiscussionPhase &&
-            userCard !== null &&
-            userCard !== 'Keine Value'
+            votingArr.length > 0
           "
-          @click="chooseEstimate(userCard)"
+          @click="chooseEstimate(key)"
           class="mt-2 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium rounded-lg transition-colors duration-200 whitespace-nowrap shadow-sm hover:shadow-md"
           title="Diese Schätzung für die Story wählen"
         >
@@ -102,4 +107,5 @@ export default {
       </div>
     </div>
   </div>
+  <!-- :key="`revealed-${index}`" -->
 </template>
