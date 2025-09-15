@@ -23,6 +23,7 @@ class SocketConnecter {
     this.discussedStories = [];
     this.gameLeft = false;
     this.timerValue = 0;
+    this.doppelteKarten = { 1: [], 2: [], 3: [], 5: [], 8: [], 13: [] };
     return reactive(this);
   }
 
@@ -110,6 +111,15 @@ class SocketConnecter {
             player.card = response.card;
           }
         });
+
+        for (const keys in this.doppelteKarten) {
+          for (let i = 0; i < this.doppelteKarten[keys].length; i++) {
+            if (this.doppelteKarten[keys][i].name === response.name) {
+              this.doppelteKarten[keys].splice(i, 1);
+            }
+          }
+        }
+        this.doppelteKarten[response.card].push(response);
       }
 
       if (response.type === "started-round") {
@@ -126,6 +136,7 @@ class SocketConnecter {
         this.stagedStory = null;
         this.revealCards = false;
         this.userList.forEach((p) => (p.card = null));
+        this.doppelteKarten = { 1: [], 2: [], 3: [], 5: [], 8: [], 13: [] };
       }
 
       if (response.type === "estimate-chosen") {
