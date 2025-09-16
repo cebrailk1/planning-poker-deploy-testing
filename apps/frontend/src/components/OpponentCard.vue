@@ -1,5 +1,10 @@
 <script>
 export default {
+  data(){
+    return{
+      active:false
+    }
+  },
   props: ["existingUser"],
   methods: {
     getInitals(index) {
@@ -70,7 +75,7 @@ export default {
         v-else
         v-for="(votingArr, key) in this.$socketConnect.doppelteKarten"
         
-        class="flex flex-col items-center m-5"
+        class="flex flex-col items-center p-5 m-5"
       >
         <div class="relative h-36 flex justify-center">
           <div
@@ -85,10 +90,16 @@ export default {
               {{ key }}
               <div
                 class="absolute top-1 right-1 text-sm rounded-full border-2 border-black flex justify-center items-center w-5 h-5 bg-black text-white"
-              >
+              @click="this.active = !this.active"
+              v-if="!this.active"
+                >
                 {{ user.name[0] }}
               </div>
-              <div class="absolute bottom-1 right-1 rounded-full text-xs  border-black flex justify-center items-center w-5 h-5 bg-black text-white ">
+              <div v-else @click="this.active = !this.active" class="absolute top-1 right-5 text-sm flex justify-center items-center w-5 h-5 text-black">
+                {{ user.name }}
+              </div>
+
+              <div v-if="votingArr.length>1" class="absolute bottom-1 right-1 rounded-full text-xs  border-black flex justify-center items-center w-5 h-5 bg-black text-white" @mouseover="mouseOver()" @mouseleave="this.active = false">
                 {{ votingArr.length }}x
               </div>
             </div>
