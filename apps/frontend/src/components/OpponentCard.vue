@@ -2,7 +2,7 @@
 export default {
   data(){
     return{
-      active:false
+      active:false,
     }
   },
   props: ["existingUser"],
@@ -25,6 +25,10 @@ export default {
         );
       }
     },
+    handleMouseOver(event){
+      console.log("mouse hovered over")
+      this.active = !this.active
+    }
   },
   computed: {
     userCardsList() {
@@ -76,7 +80,9 @@ export default {
         v-for="(votingArr, key) in this.$socketConnect.doppelteKarten"
         
         class="flex flex-col items-center p-5 m-5"
-      >
+        v-on:mouseover="this.active = true"
+        v-on:mouseleave="this.active = false"
+        >
         <div class="relative h-36 flex justify-center">
           <div
             class="w-16 h-24 bg-white rounded-md border-2 border-gray-300 flex absolute items-center justify-center cursor-pointer text-2xl font-bold text-gray-800 transition-all duration-200 hover:transform hover:-translate-y-1 hover:shadow-md active:scale-95"
