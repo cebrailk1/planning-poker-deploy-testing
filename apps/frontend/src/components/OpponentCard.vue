@@ -70,7 +70,7 @@ export default {
         v-else
         v-for="(votingArr, key) in this.$socketConnect.doppelteKarten"
         
-        class="flex flex-col items-center m-3"
+        class="flex flex-col items-center m-5"
       >
         <div class="relative h-36 flex justify-center">
           <div
