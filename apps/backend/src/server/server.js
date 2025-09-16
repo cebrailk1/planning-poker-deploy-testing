@@ -9,7 +9,7 @@ import {
 } from "../utils/roomUtils.js";
 
 const wss = new WebSocketServer({ port: 8080 });
-let rooms = {}; // Struktur {hash:{players:[], roundStarted:bool, timerActive, timerValue, timerInterval, ...}}
+let rooms = {}; // Struktur {hash:{players:[], roundStarted:bool, timerActive, timerValue, timerInterval, ...}}    doppelteKarten
 const userNameWhiteList = /^[A-Za-z0-9]+$/;
 
 wss.on("connection", function connection(ws) {
@@ -35,6 +35,7 @@ wss.on("connection", function connection(ws) {
         timerActive: false,
         timerValue: 0,
         timerInterval: null,
+        doppelteKarten:  { 1: [], 2: [], 3: [], 5: [], 8: [], 13: [] }
       };
 
       rooms[roomId].players.push({
@@ -144,6 +145,7 @@ wss.on("connection", function connection(ws) {
               })),
               roundStarted: rooms[roomId].roundStarted,
               discussion: rooms[roomId].discussion,
+              doppelteKarten:rooms[roomId].doppelteKarten
             },
             role: rejoinedPlayer.role,
             stories: rooms[roomId].stories,
@@ -161,11 +163,22 @@ wss.on("connection", function connection(ws) {
           player.card = card === null ? null : card;
         }
       });
+      for(const keys in rooms[roomId].doppelteKarten){
+        for(let i= 0;i<rooms[roomId].doppelteKarten[keys].length;i++){
+          if(rooms[roomId].doppelteKarten[keys][i].name===user.toLowerCase()){
+            rooms[roomId].doppelteKarten[keys].splice(i,1)
+          }
+        }
+      }
+    if(card !== null){
+      rooms[roomId].doppelteKarten[card].push({card,name:user.toLowerCase()})
+    }
 
       let payload = {
         type: "set-card",
         name: user.toLowerCase(),
         card: card,
+        doppelteKarten:rooms[roomId].doppelteKarten
       };
       sendToEveryClient(roomId, payload, rooms);
     }
@@ -236,11 +249,14 @@ wss.on("connection", function connection(ws) {
       );
       rooms[roomId].stories.splice(discussedStoryIndex, 1);
 
+      rooms[roomId].doppelteKarten={ 1: [], 2: [], 3: [], 5: [], 8: [], 13: [] }
+
       let payload = {
         type: "ended-round",
         roundEnded: false,
         stories: rooms[roomId].stories,
         discussedStories: rooms[roomId].discussedStories,
+        doppelteKarten: rooms[roomId].doppelteKarten
       };
       sendToEveryClient(roomId, payload, rooms);
     }

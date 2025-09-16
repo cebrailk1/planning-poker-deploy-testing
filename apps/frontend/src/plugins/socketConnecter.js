@@ -101,7 +101,7 @@ class SocketConnecter {
         this.storyList = response.stories;
         this.stagedStory = response.stagedStory;
         this.discussedStories = response.discussedStories;
-
+        this.doppelteKarten = response.room.doppelteKarten
         this.revealCards = response.room.discussion || false;
       }
 
@@ -112,14 +112,7 @@ class SocketConnecter {
           }
         });
 
-        for (const keys in this.doppelteKarten) {
-          for (let i = 0; i < this.doppelteKarten[keys].length; i++) {
-            if (this.doppelteKarten[keys][i].name === response.name) {
-              this.doppelteKarten[keys].splice(i, 1);
-            }
-          }
-        }
-        this.doppelteKarten[response.card].push(response);
+        this.doppelteKarten = response.doppelteKarten
       }
 
       if (response.type === "started-round") {
@@ -136,7 +129,7 @@ class SocketConnecter {
         this.stagedStory = null;
         this.revealCards = false;
         this.userList.forEach((p) => (p.card = null));
-        this.doppelteKarten = { 1: [], 2: [], 3: [], 5: [], 8: [], 13: [] };
+        this.doppelteKarten = response.doppelteKarten
       }
 
       if (response.type === "estimate-chosen") {
