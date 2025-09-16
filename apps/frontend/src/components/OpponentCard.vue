@@ -88,6 +88,9 @@ export default {
               >
                 {{ user.name[0] }}
               </div>
+              <div class="absolute bottom-1 right-1 rounded-full text-xs  border-black flex justify-center items-center w-5 h-5 bg-black text-white ">
+                {{ votingArr.length }}x
+              </div>
             </div>
           </div>
         </div>
