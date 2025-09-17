@@ -80,8 +80,6 @@ export default {
         v-for="(votingArr, key) in this.$socketConnect.doppelteKarten"
         
         class="flex flex-col items-center p-5 m-5"
-        v-on:mouseover="this.active = true"
-        v-on:mouseleave="this.active = false"
         >
         <div class="relative h-36 flex justify-center">
           <div
@@ -92,11 +90,11 @@ export default {
             }"
             v-for="(user, index) in votingArr" :style="'top:'+index * 30+'px'"
           >
-            <div class="relative flex w-full justify-center items-center h-24">
+            <div class="relative flex w-full justify-center items-center h-24"      v-on:mouseover="this.active = true"
+        v-on:mouseleave="this.active = false">
               {{ key }}
               <div
                 class="absolute top-1 right-1 text-sm rounded-full border-2 border-black flex justify-center items-center w-5 h-5 bg-black text-white"
-              @click="this.active = !this.active"
               v-if="!this.active"
                 >
                 {{ user.name[0] }}
