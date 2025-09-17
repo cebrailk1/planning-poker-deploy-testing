@@ -194,9 +194,11 @@ export default {
           Current Story:
           {{ $socketConnect.stagedStory?.name || "Keine Story ausgewählt" }}
         </h1>
-        <p v-if="$socketConnect.roundStarted" class="text-lg mt-1">
+        <p v-if="!this.$socketConnect.roundStarted" class="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Warten...</p>
+        <p v-else-if="!$socketConnect.discussionPhase" class="mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
           Runde hat gestartet | Timer: {{ formattedTimer }}
         </p>
+        <p v-else class="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Diskussion</p>
       </div>
 
       <button
