@@ -376,33 +376,5 @@ export default {
         }}</span>
       </div>
     </div>
-
-    <div
-      class="mt-3 p-2 bg-gradient-to-r from-gray-50 to-green-50 rounded-lg border border-gray-100"
-    >
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-2">
-          <span class="text-xs font-medium text-gray-700">Status:</span>
-          <span
-            v-if="!$socketConnect.roundStarted"
-            class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
-          >
-            Inaktiv
-          </span>
-          <span
-            v-else-if="!$socketConnect.discussionPhase"
-            class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
-          >
-            Abstimmung
-          </span>
-          <span
-            v-else
-            class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-          >
-            Diskussion
-          </span>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
