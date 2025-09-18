@@ -26,6 +26,7 @@ export default {
       stagedStory: null,
       wantsVisitor: false,
       copySuccess: false,
+      screenWidth: window.innerWidth
     };
   },
   methods: {
@@ -95,7 +96,19 @@ export default {
       const sec = (seconds % 60).toString().padStart(2, "0");
       return `${min}:${sec}`;
     },
+    isMobile(){
+      if(this.screenWidth<=760){
+        return true
+      }else{
+        return false
+      }
+    }
   },
+  created() {
+  window.addEventListener("resize", () => {
+    this.screenWidth = window.innerWidth
+  })
+},
   watch: {
     "$socketConnect.gameLeft"(newVal) {
       if (newVal) {
@@ -194,11 +207,14 @@ export default {
           Current Story:
           {{ $socketConnect.stagedStory?.name || "Keine Story ausgewählt" }}
         </h1>
-        <p v-if="!this.$socketConnect.roundStarted" class="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Warten...</p>
-        <p v-else-if="!$socketConnect.discussionPhase" class="mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-          Runde hat gestartet | Timer: {{ formattedTimer }}
-        </p>
-        <p v-else class="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Diskussion</p>
+        <div class="mt-1 flex h-6 items-center justify-center">
+
+          <p v-if="!this.$socketConnect.roundStarted" class="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Warten...</p>
+          <p v-else-if="!$socketConnect.discussionPhase" class="mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            Runde hat gestartet | Timer: {{ formattedTimer }}
+          </p>
+          <p v-else class="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Diskussion</p>
+        </div>
       </div>
 
       <button
@@ -211,6 +227,7 @@ export default {
 
     <div class="flex space-x-4 mt-4 px-4">
       <RoomInfoPanel
+      v-if="!isMobile"
         :existing-user="existingUser"
         :hash="hash"
         class="flex-shrink-0"
@@ -223,10 +240,9 @@ export default {
         style="margin-left: 575px"
       />
     </div>
-
-    <UserList />
-    <StoryBoard :hash="hash" @stage-story="setStageStory"></StoryBoard>
-    <DoneStories />
+    <UserList v-if="!isMobile" />
+    <StoryBoard v-if="!isMobile" :hash="hash" @stage-story="setStageStory"></StoryBoard>
+    <DoneStories v-if="!isMobile" />
     <OpponentCard :existingUser="existingUser" />
     <GameCards
       v-if="
