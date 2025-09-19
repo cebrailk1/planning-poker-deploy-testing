@@ -7,7 +7,11 @@ import {
   checkUserRole,
   resetRoomVariableAfterFinishedRound,
 } from "../utils/roomUtils.js";
-
+import { handleCreateRoom } from "../handlers/createRoomHandler.js";
+import { handleJoinRoom } from "../handlers/joinRoomHandler.js";
+import { handleRejoin } from "../handlers/rejoinHandler.js";
+import { handleSetCard } from "../handlers/setCardHandler.js";
+import { handleStartRound } from "../handlers/roundHandler.js";
 const wss = new WebSocketServer({ port: 8080 });
 let rooms = {}; // Struktur {hash:{players:[], roundStarted:bool, timerActive, timerValue, timerInterval, ...}}    doppelteKarten
 const userNameWhiteList = /^[A-Za-z0-9]+$/;
@@ -19,212 +23,23 @@ wss.on("connection", function connection(ws) {
     const { username, type } = JSON.parse(data);
 
     if (type === "create room") {
-      if (!username.match(userNameWhiteList)) {
-        ws.send(JSON.stringify({ type: "wrong-format" }));
-        return;
-      }
-
-      const roomId = roomHasher();
-      rooms[roomId] = {
-        players: [],
-        roundStarted: false,
-        stories: [],
-        stagedStory: "",
-        discussion: false,
-        discussedStories: [],
-        timerActive: false,
-        timerValue: 0,
-        timerInterval: null,
-        doppelteKarten:  { 1: [], 2: [], 3: [], 5: [], 8: [], 13: [] }
-      };
-
-      rooms[roomId].players.push({
-        name: username.toLowerCase(),
-        role: "Scrum Master",
-        socket: ws,
-        card: null,
-      });
-
-      ws.send(
-        JSON.stringify({
-          type: "room-created",
-          roomId,
-          room: rooms[roomId],
-          card: null,
-        })
-      );
+      handleCreateRoom(ws,username,rooms)
     }
 
     if (type === "join room") {
-      const { roomId, user, wantsVisitor } = JSON.parse(data);
-
-      if (!user.match(userNameWhiteList)) {
-        ws.send(JSON.stringify({ type: "wrong-format" }));
-        return;
-      }
-
-      const userLower = user.toLowerCase();
-
-      if (!rooms[roomId]) {
-        ws.send(
-          JSON.stringify({ type: "room-joined", error: "Raum nicht gefunden" })
-        );
-        return;
-      }
-
-      if (checkUserExists(rooms[roomId], userLower)) {
-        ws.send(
-          JSON.stringify({
-            type: "user-exists",
-            message: "User already exists",
-          })
-        );
-        return;
-      }
-
-      rooms[roomId].players.push({
-        name: userLower,
-        role: wantsVisitor ? "Visitor" : "Player",
-        socket: ws,
-        card: null,
-      });
-
-      console.log("das ist role", rooms[roomId].players.role);
-
-      const joinedUserIdx = rooms[roomId].players.findIndex(
-        (ele) => ele.name === userLower
-      );
-
-      ws.send(
-        JSON.stringify({
-          type: "room-joined",
-          message: "User angelegt",
-          room: rooms[roomId],
-          card: null,
-          stories: rooms[roomId].stories,
-          stagedStory: rooms[roomId].stagedStory,
-          discussedStories: rooms[roomId].discussedStories,
-          role: rooms[roomId].players[joinedUserIdx].role,
-        })
-      );
-
-      rooms[roomId].players.forEach((player) => {
-        if (
-          player.socket !== ws &&
-          player.socket.readyState === WebSocket.OPEN
-        ) {
-          player.socket.send(
-            JSON.stringify({
-              type: "user-joined",
-              name: userLower,
-              role: rooms[roomId].players[joinedUserIdx].role,
-              card: null,
-            })
-          );
-        }
-      });
+      handleJoinRoom(ws,data,rooms)
     }
 
     if (type === "rejoin") {
-      const { user, roomId } = JSON.parse(data);
-      const userLower = user.toLowerCase();
-      const rejoinedPlayer = rooms[roomId].players.find(
-        (player) => player.name === userLower
-      );
-      if (rejoinedPlayer) {
-        rejoinedPlayer.socket = ws;
-
-        ws.send(
-          JSON.stringify({
-            type: "user-rejoined",
-            room: {
-              players: rooms[roomId].players.map((player) => ({
-                name: player.name,
-                role: player.role,
-                card: player.card,
-              })),
-              roundStarted: rooms[roomId].roundStarted,
-              discussion: rooms[roomId].discussion,
-              doppelteKarten:rooms[roomId].doppelteKarten
-            },
-            role: rejoinedPlayer.role,
-            stories: rooms[roomId].stories,
-            stagedStory: rooms[roomId].stagedStory,
-            discussedStories: rooms[roomId].discussedStories,
-          })
-        );
-      }
+      handleRejoin(ws,data,rooms)
     }
 
     if (type === "set card") {
-      const { card, user, roomId } = JSON.parse(data);
-      rooms[roomId].players.forEach((player) => {
-        if (player.name === user.toLowerCase()) {
-          player.card = card === null ? null : card;
-        }
-      });
-      for(const keys in rooms[roomId].doppelteKarten){
-        for(let i= 0;i<rooms[roomId].doppelteKarten[keys].length;i++){
-          if(rooms[roomId].doppelteKarten[keys][i].name===user.toLowerCase()){
-            rooms[roomId].doppelteKarten[keys].splice(i,1)
-          }
-        }
-      }
-    if(card !== null){
-      rooms[roomId].doppelteKarten[card].push({card,name:user.toLowerCase()})
-    }
-
-      let payload = {
-        type: "set-card",
-        name: user.toLowerCase(),
-        card: card,
-        doppelteKarten:rooms[roomId].doppelteKarten
-      };
-      sendToEveryClient(roomId, payload, rooms);
+      handleSetCard(ws,data,rooms)
     }
 
     if (type === "start round") {
-      const { roomId, timerActive, timerValue } = JSON.parse(data);
-
-      rooms[roomId].roundStarted = true;
-      rooms[roomId].timerActive = timerActive;
-      rooms[roomId].timerValue = timerActive ? timerValue : 0;
-
-      rooms[roomId].players.forEach((player) => (player.card = null));
-
-      if (rooms[roomId].timerInterval) {
-        clearInterval(rooms[roomId].timerInterval);
-      }
-
-      if (rooms[roomId].timerActive) {
-        rooms[roomId].timerInterval = setInterval(() => {
-          if (rooms[roomId].timerValue > 0) {
-            rooms[roomId].timerValue--;
-            let payload = {
-              type: "timer-update",
-              timerValue: rooms[roomId].timerValue,
-            };
-            sendToEveryClient(roomId, payload, rooms);
-          } else {
-            clearInterval(rooms[roomId].timerInterval);
-            rooms[roomId].timerInterval = null;
-
-            rooms[roomId].discussion = true;
-            let discussionPayload = {
-              type: "discussion-started",
-              discussion: true,
-            };
-            sendToEveryClient(roomId, discussionPayload, rooms);
-          }
-        }, 1000);
-      }
-
-      let payload = {
-        type: "started-round",
-        roundStarted: rooms[roomId].roundStarted,
-        room: rooms[roomId].players,
-      };
-      sendToEveryClient(roomId, payload, rooms);
+      handleStartRound(ws,data,rooms)
     }
 
     if (type === "end round") {
