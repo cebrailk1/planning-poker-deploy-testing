@@ -14,6 +14,7 @@ import { handleSetCard } from "../handlers/setCardHandler.js";
 import { handleEndRound, handleStartRound } from "../handlers/roundHandler.js";
 import { handleCopyStories, handleSetStory, handleStageStory } from "../handlers/storyHandler.js";
 import { handleChangeName } from "../handlers/changeNameHandler.js";
+import { handleDiscussion } from "../handlers/discussionHandler.js";
 const wss = new WebSocketServer({ port: 8080 });
 let rooms = {}; // Struktur {hash:{players:[], roundStarted:bool, timerActive, timerValue, timerInterval, ...}}    doppelteKarten
 
@@ -90,25 +91,7 @@ wss.on("connection", function connection(ws) {
     }
 
     if (type === "start discussion") {
-      const { roomId } = JSON.parse(data);
-
-      if (rooms[roomId].timerInterval) {
-        clearInterval(rooms[roomId].timerInterval);
-        rooms[roomId].timerInterval = null;
-        rooms[roomId].timerValue = 0;
-        sendToEveryClient(
-          roomId,
-          { type: "timer-update", timerValue: 0 },
-          rooms
-        );
-      }
-
-      rooms[roomId].discussion = true;
-      let payload = {
-        type: "discussion-started",
-        discussion: rooms[roomId].discussion,
-      };
-      sendToEveryClient(roomId, payload, rooms);
+      handleDiscussion(ws,data,rooms)
     }
 
     if (type === "leave room") {
