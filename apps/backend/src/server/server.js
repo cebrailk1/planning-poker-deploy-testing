@@ -13,9 +13,9 @@ import { handleRejoin } from "../handlers/rejoinHandler.js";
 import { handleSetCard } from "../handlers/setCardHandler.js";
 import { handleEndRound, handleStartRound } from "../handlers/roundHandler.js";
 import { handleCopyStories, handleSetStory, handleStageStory } from "../handlers/storyHandler.js";
+import { handleChangeName } from "../handlers/changeNameHandler.js";
 const wss = new WebSocketServer({ port: 8080 });
 let rooms = {}; // Struktur {hash:{players:[], roundStarted:bool, timerActive, timerValue, timerInterval, ...}}    doppelteKarten
-const userNameWhiteList = /^[A-Za-z0-9]+$/;
 
 wss.on("connection", function connection(ws) {
   ws.on("error", console.error);
@@ -152,32 +152,7 @@ wss.on("connection", function connection(ws) {
     }
 
     if (type === "change-name") {
-      const { roomId, oldName, newName } = JSON.parse(data);
-
-      const player = rooms[roomId]?.players.find((p) => p.name === oldName);
-      if (!player) {
-        ws.send(
-          JSON.stringify({ type: "error", message: "Spieler nicht gefunden" })
-        );
-        return;
-      }
-
-      player.name = newName;
-
-      rooms[roomId].players.forEach((p) => {
-        if (p.socket.readyState === WebSocket.OPEN) {
-          p.socket.send(
-            JSON.stringify({
-              type: "user-list-update",
-              players: rooms[roomId].players.map((pl) => ({
-                name: pl.name,
-                role: pl.role,
-                card: pl.card,
-              })),
-            })
-          );
-        }
-      });
+      handleChangeName(ws,data,rooms)
     }
   });
 });
