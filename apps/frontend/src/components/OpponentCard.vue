@@ -5,7 +5,7 @@ export default {
       active:false,
     }
   },
-  props: ["existingUser"],
+  props: ["existingUser","isMobile"],
   methods: {
     getInitals(index) {
       let firstLetter = this.$socketConnect.userList.filter(
@@ -59,7 +59,7 @@ export default {
       class="w-full max-w-6xl bg-green-700 border-[10px] border-yellow-400 rounded-full h-[500px] flex justify-center items-center"
     >
       <div
-        v-if="!this.$socketConnect.revealCards"
+        v-if="!this.$socketConnect.revealCards&&!this.isMobile"
         v-for="(userCard, index) in userCardsList"
         :key="`hidden-${index}`"
         class="w-16 h-24 bg-white rounded-md border-2 border-gray-300 flex items-center justify-center cursor-pointer text-2xl font-bold text-gray-800 relative transition-all duration-200 hover:transform hover:-translate-y-1 hover:shadow-md active:scale-95 m-3"
@@ -76,7 +76,7 @@ export default {
       </div>
 
       <div
-        v-else
+        v-else-if="!this.isMobile"
         v-for="(votingArr, key) in this.$socketConnect.doppelteKarten"
         
         class="flex flex-col items-center p-5 m-5"

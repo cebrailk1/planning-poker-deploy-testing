@@ -182,7 +182,7 @@ export default {
 
   <div
     v-else
-    class="relative min-h-screen bg-green-800 text-white overflow-hidden"
+    class="relative h-screen bg-green-800 text-white overflow-hidden"
   >
     <header
       class="flex justify-between items-center w-full py-4 px-4 bg-green-900 relative"
@@ -243,7 +243,7 @@ export default {
     <UserList v-if="!isMobile" />
     <StoryBoard v-if="!isMobile" :hash="hash" @stage-story="setStageStory"></StoryBoard>
     <DoneStories v-if="!isMobile" />
-    <OpponentCard :existingUser="existingUser" />
+    <OpponentCard :isMobile="isMobile" :existingUser="existingUser" />
     <GameCards
       v-if="
         $socketConnect.userRole !== 'Scrum Master' &&
