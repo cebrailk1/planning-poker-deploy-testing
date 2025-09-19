@@ -11,7 +11,8 @@ import { handleCreateRoom } from "../handlers/createRoomHandler.js";
 import { handleJoinRoom } from "../handlers/joinRoomHandler.js";
 import { handleRejoin } from "../handlers/rejoinHandler.js";
 import { handleSetCard } from "../handlers/setCardHandler.js";
-import { handleStartRound } from "../handlers/roundHandler.js";
+import { handleEndRound, handleStartRound } from "../handlers/roundHandler.js";
+import { handleCopyStories, handleSetStory, handleStageStory } from "../handlers/storyHandler.js";
 const wss = new WebSocketServer({ port: 8080 });
 let rooms = {}; // Struktur {hash:{players:[], roundStarted:bool, timerActive, timerValue, timerInterval, ...}}    doppelteKarten
 const userNameWhiteList = /^[A-Za-z0-9]+$/;
@@ -43,37 +44,7 @@ wss.on("connection", function connection(ws) {
     }
 
     if (type === "end round") {
-      const { roomId, storyPoints, story } = JSON.parse(data);
-
-      console.log("hello", JSON.parse(data));
-
-      if (rooms[roomId].timerInterval) {
-        clearInterval(rooms[roomId].timerInterval);
-        rooms[roomId].timerInterval = null;
-      }
-      resetRoomVariableAfterFinishedRound(rooms, roomId);
-
-      sendToEveryClient(roomId, { type: "timer-update", timerValue: 0 }, rooms);
-
-      let discussedStoryIndex = rooms[roomId].stories.findIndex(
-        (ele) => ele.name === story.name
-      );
-      rooms[roomId].stories[discussedStoryIndex].points = storyPoints;
-      rooms[roomId].discussedStories.push(
-        rooms[roomId].stories[discussedStoryIndex]
-      );
-      rooms[roomId].stories.splice(discussedStoryIndex, 1);
-
-      rooms[roomId].doppelteKarten={ 1: [], 2: [], 3: [], 5: [], 8: [], 13: [] }
-
-      let payload = {
-        type: "ended-round",
-        roundEnded: false,
-        stories: rooms[roomId].stories,
-        discussedStories: rooms[roomId].discussedStories,
-        doppelteKarten: rooms[roomId].doppelteKarten
-      };
-      sendToEveryClient(roomId, payload, rooms);
+      handleEndRound(ws,data,rooms)
     }
 
     if (type === "choose estimate") {
@@ -111,32 +82,11 @@ wss.on("connection", function connection(ws) {
     }
 
     if (type === "set story") {
-      const { story, roomId } = JSON.parse(data);
-
-      if (rooms[roomId].stories.find((ele) => ele.name === story)) {
-        ws.send(JSON.stringify({ type: "story-exists" }));
-        return;
-      }
-
-      rooms[roomId].stories.push({ name: story, points: null });
-      let payload = {
-        type: "set-new-story",
-        stories: rooms[roomId].stories,
-      };
-
-      sendToEveryClient(roomId, payload, rooms);
+      handleSetStory(ws,data,rooms)
     }
 
     if (type === "stage story") {
-      const { story, roomId } = JSON.parse(data);
-
-      const storyObj = rooms[roomId].stories.find((s) => s.name === story);
-      if (!storyObj) return;
-
-      rooms[roomId].stagedStory = storyObj;
-
-      let payload = { type: "story-staged", story: storyObj };
-      sendToEveryClient(roomId, payload, rooms);
+      handleStageStory(ws,data,rooms)
     }
 
     if (type === "start discussion") {
@@ -198,9 +148,7 @@ wss.on("connection", function connection(ws) {
     }
 
     if (type === "copy stories") {
-      const { roomId } = JSON.parse(data);
-      let exportedData = exportGameData(rooms[roomId]);
-      ws.send(JSON.stringify({ type: "exported-data", exportedData }));
+      handleCopyStories(ws,data,rooms)
     }
 
     if (type === "change-name") {
