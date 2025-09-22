@@ -21,15 +21,16 @@ Planning Poker (also known as Scrum Poker) is an Agile estimation technique used
 
 # Installation
 1. Clone the repository
-2. Move to the frontend folder.
+2. Move to the frontend folder. Install everything and start the frontend.
 ```bash
+npm i
 npm run dev
 ```
 3. Move to the backend folder. Install everything.
 ```bash
 npm i
 ```
-4. Move to the serve folder.
+4. Move to the server folder.
 ```bash
 node server.js
 ```
