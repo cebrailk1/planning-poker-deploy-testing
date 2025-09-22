@@ -27,13 +27,9 @@ cd apps/frontend/
 npm i
 npm run dev
 ```
-3. Move to the backend folder. Install everything.
+3. Move to the backend folder. Install everything. Run the Server 
 ```bash
 cd apps/backend/src/
 npm i
-```
-4. Move to the server folder and run the server.js file.
-```bash
-cd apps/backend/src/server/
-node server.js
+npm run start
 ```
