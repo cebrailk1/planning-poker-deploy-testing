@@ -54,6 +54,10 @@ export default {
             alert("Dieser Benutzername existiert bereits im Raum!");
             return;
           }
+          if(response.error==="room-not-exists"){
+            this.showToast("Raum existiert nicht", "warning")
+            return
+          }
 
           localStorage.setItem(
             "rooms",
@@ -71,6 +75,22 @@ export default {
     setStageStory(story) {
       this.stagedStory = story;
       this.$socketConnect.stageStory(story.name, this.hash);
+    },
+    showToast(message, type = "info") {
+      const toast = document.createElement("div");
+      toast.className = `fixed top-4 right-2 px-4 py-2 rounded-lg shadow-lg text-white font-medium z-50 transition-opacity duration-300 ${
+        type === "success"
+          ? "bg-green-500"
+          : type === "warning"
+          ? "bg-yellow-500"
+          : "bg-blue-500"
+      }`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
     },
   },
   computed: {

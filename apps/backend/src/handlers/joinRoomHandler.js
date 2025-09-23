@@ -14,7 +14,7 @@ export function handleJoinRoom(ws, data, rooms) {
 
   if (!rooms[roomId]) {
     ws.send(
-      JSON.stringify({ type: "room-joined", error: "Raum nicht gefunden" })
+      JSON.stringify({ type: "room-not-exists", error: "Raum nicht gefunden" })
     );
     return;
   }

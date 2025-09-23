@@ -180,6 +180,14 @@ class SocketConnecter {
       if (response.type === "user-list-update") {
         this.userList = response.players;
       }
+      if(response.type === "room-not-exists"){
+        if (this.onRoomJoinedCallback) {
+          this.onRoomJoinedCallback({
+            error: "room-not-exists",
+            message: "Room does not exists",
+          });
+        }
+      }
     };
 
     socket.onerror = (err) => {
