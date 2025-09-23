@@ -54,7 +54,7 @@ export default {
         v-if="copySuccess"
         class="mt-1 bg-green-200 text-green-900 px-2 py-1 rounded-lg shadow text-xs animate-bounce"
       >
-        ✅ Kopiert!
+        ✅ Copied!
       </span>
     </div>
 
@@ -68,19 +68,19 @@ export default {
           v-if="!this.$socketConnect.roundStarted"
           class="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
         >
-          Warten...
+          Waiting...
         </p>
         <p
           v-else-if="!$socketConnect.discussionPhase"
           class="mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
         >
-          Runde hat gestartet | Timer: {{ formattedTimer }}
+          Round has started | Timer: {{ formattedTimer }}
         </p>
         <p
           v-else
           class="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
         >
-          Diskussion
+          Discussion
         </p>
       </div>
     </div>

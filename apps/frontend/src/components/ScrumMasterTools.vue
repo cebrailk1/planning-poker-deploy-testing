@@ -15,30 +15,30 @@ export default {
   methods: {
     addStory() {
       if (this.story.trim() === "") {
-        this.showToast("Bitte geben Sie eine Story ein", "warning");
+        this.showToast("Please enter a story", "warning");
         return;
       }
       this.$socketConnect.addStory(this.story, this.hash);
       this.story = "";
-      this.showToast("Story wurde zum Backlog hinzugefügt", "success");
+      this.showToast("Story added to backlog", "success");
     },
     startRound() {
       if (this.$socketConnect.roundStarted) {
-        this.showToast("Die Runde wurde bereits gestartet", "warning");
+        this.showToast("The round has already started", "warning");
       } else if (!this.$socketConnect.stagedStory) {
-        this.showToast("Bitte wählen Sie erst eine Story aus", "warning");
+        this.showToast("Please select a story first", "warning");
       } else {
         this.$socketConnect.startRound(
           this.hash,
           this.timerEnabled,
           this.timerSeconds
         );
-        this.showToast("Runde wurde gestartet", "success");
+        this.showToast("Round has started", "success");
       }
     },
     endRound() {
       if (!this.storyPoints) {
-        this.showToast("Bitte wählen Sie Story-Punkte aus", "warning");
+        this.showToast("Please select story points", "warning");
         return;
       }
 
@@ -48,14 +48,14 @@ export default {
         this.$socketConnect.stagedStory
       );
       this.storyPoints = null;
-      this.showToast("Runde wurde beendet", "success");
+      this.showToast("Round has ended", "success");
     },
     startDiscussion() {
       if (this.$socketConnect.roundStarted) {
         this.$socketConnect.startDiscussion(this.hash);
-        this.showToast("Diskussion wurde gestartet", "success");
+        this.showToast("Discussion has started", "success");
       } else {
-        this.showToast("Bitte starten Sie erst eine Runde", "warning");
+        this.showToast("Please start one round first", "warning");
       }
     },
     showToast(message, type = "info") {
@@ -149,7 +149,7 @@ export default {
                 d="M12 6v6m0 0v6m0-6h6m-6 0H6"
               />
             </svg>
-            Hinzufügen
+            Add
           </button>
         </div>
       </div>
@@ -183,7 +183,7 @@ export default {
               class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"
             ></div>
           </label>
-          <span class="text-xs font-medium text-gray-700">Aktivieren</span>
+          <span class="text-xs font-medium text-gray-700">Activate</span>
 
           <input
             v-if="timerEnabled"
@@ -244,7 +244,7 @@ export default {
             d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"
           />
         </svg>
-        Rundensteuerung
+        Roundcontroller
       </h3>
 
       <div class="flex flex-wrap gap-2 justify-center">
@@ -274,7 +274,7 @@ export default {
               d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          Starten
+          Start
         </button>
 
         <button
@@ -297,7 +297,7 @@ export default {
               d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
             />
           </svg>
-          Diskussion
+          Discussion
         </button>
 
         <button
@@ -326,7 +326,7 @@ export default {
               d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"
             />
           </svg>
-          Beenden
+          Finish
         </button>
       </div>
     </div>
