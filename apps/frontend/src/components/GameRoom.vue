@@ -29,7 +29,8 @@ export default {
       existingUser: null,
       stagedStory: null,
       wantsVisitor: false,
-      screenWidth: window.innerWidth
+      screenWidth: window.innerWidth,
+      screenHeight: window.innerHeight
     };
   },
   methods: {
@@ -95,7 +96,7 @@ export default {
   },
   computed: {
     isMobile(){
-      if(this.screenWidth<=760){
+      if(this.screenWidth<=760||this.screenHeight <= 600){
         return true
       }else{
         return false
