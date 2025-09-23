@@ -110,18 +110,25 @@ export default {
           </div>
         </div>
 
-        <button
-          v-if="
-            isScrumMaster &&
-            isDiscussionPhase &&
-            votingArr.length > 0
-          "
-          @click="chooseEstimate(key)"
-          class="mt-2 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium rounded-lg transition-colors duration-200 whitespace-nowrap shadow-sm hover:shadow-md"
-          title="Diese Schätzung für die Story wählen"
-        >
-          Choose this estimate
-        </button>
+        <div v-if="
+              isScrumMaster &&
+              isDiscussionPhase &&
+              votingArr.length > 0
+            " class="mt-8">
+
+          <button
+            v-if="
+              isScrumMaster &&
+              isDiscussionPhase &&
+              votingArr.length > 0
+            "
+            @click="chooseEstimate(key)"
+            class="mt-7 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium rounded-lg transition-colors duration-200 whitespace-nowrap shadow-sm hover:shadow-md"
+            title="Diese Schätzung für die Story wählen"
+          >
+            Choose this estimate
+          </button>
+        </div>
       </div>
     </div>
   </div>
