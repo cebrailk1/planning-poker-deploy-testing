@@ -8,6 +8,7 @@ import UserList from "./UserList.vue";
 import RoomInfoPanel from "./RoomInfoPanel.vue";
 import JoinRoom from "./JoinRoom.vue";
 import RoomHeader from "./RoomHeader.vue";
+import QrcodeVue from "qrcode.vue";
 
 export default {
   props: { hash: String },
@@ -20,7 +21,8 @@ export default {
     UserList,
     RoomInfoPanel,
     JoinRoom,
-    RoomHeader
+    RoomHeader,
+    QrcodeVue,
   },
   data() {
     return {
@@ -30,7 +32,8 @@ export default {
       stagedStory: null,
       wantsVisitor: false,
       screenWidth: window.innerWidth,
-      screenHeight: window.innerHeight
+      screenHeight: window.innerHeight,
+      qrCodePopUp: false,
     };
   },
   methods: {
@@ -43,9 +46,9 @@ export default {
         this.hasUsername = true;
       }
     },
-    UserJoinRoom(username,wantsVisitor) {
-      this.username = username
-      this.wantsVisitor = wantsVisitor
+    UserJoinRoom(username, wantsVisitor) {
+      this.username = username;
+      this.wantsVisitor = wantsVisitor;
       this.$socketConnect.joinRoom(
         this.hash,
         this.username,
@@ -55,9 +58,9 @@ export default {
             alert("Dieser Benutzername existiert bereits im Raum!");
             return;
           }
-          if(response.error==="room-not-exists"){
-            this.showToast("Raum existiert nicht", "warning")
-            return
+          if (response.error === "room-not-exists") {
+            this.showToast("Raum existiert nicht", "warning");
+            return;
           }
 
           localStorage.setItem(
@@ -93,21 +96,24 @@ export default {
         toast.remove();
       }, 3000);
     },
+    displayQr() {
+      this.qrCodePopUp = true;
+    },
   },
   computed: {
-    isMobile(){
-      if(this.screenWidth<=760||this.screenHeight <= 600){
-        return true
-      }else{
-        return false
+    isMobile() {
+      if (this.screenWidth <= 760 || this.screenHeight <= 600) {
+        return true;
+      } else {
+        return false;
       }
-    }
+    },
   },
   created() {
-  window.addEventListener("resize", () => {
-    this.screenWidth = window.innerWidth
-  })
-},
+    window.addEventListener("resize", () => {
+      this.screenWidth = window.innerWidth;
+    });
+  },
   watch: {
     "$socketConnect.gameLeft"(newVal) {
       if (newVal) {
@@ -126,16 +132,21 @@ export default {
     <JoinRoom :username="username" @joinRoom="UserJoinRoom"></JoinRoom>
   </div>
 
-  <div
-    v-else
-    class="relative h-screen bg-green-800 text-white overflow-hidden"
-  >
-  <RoomHeader :hash="hash"></RoomHeader>
+  <div v-else class="relative h-screen bg-green-800 text-white overflow-hidden">
+    <RoomHeader :hash="hash"></RoomHeader>
+    <div v-if="qrCodePopUp" class="flex justify-center">
+      <QrcodeVue
+        :value="`http://localhost:5173/room/${hash}`"
+        :size="200"
+        level="H"
+      ></QrcodeVue>
+    </div>
     <div class="flex space-x-4 mt-4 px-4">
       <RoomInfoPanel
-      v-if="!isMobile"
+        v-if="!isMobile"
         :existing-user="existingUser"
         :hash="hash"
+        @qrcode="displayQr"
         class="flex-shrink-0"
         @name-updated="(newName) => (existingUser = newName)"
       />
@@ -147,7 +158,11 @@ export default {
       />
     </div>
     <UserList v-if="!isMobile" />
-    <StoryBoard v-if="!isMobile" :hash="hash" @stage-story="setStageStory"></StoryBoard>
+    <StoryBoard
+      v-if="!isMobile"
+      :hash="hash"
+      @stage-story="setStageStory"
+    ></StoryBoard>
     <DoneStories v-if="!isMobile" />
     <OpponentCard :isMobile="isMobile" :existingUser="existingUser" />
     <GameCards

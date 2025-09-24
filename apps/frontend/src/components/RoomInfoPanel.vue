@@ -26,11 +26,7 @@
       </button>
     </div>
     <div>
-      <QrcodeVue
-        :value="`http://localhost:5173/room/${hash}`"
-        :size="80"
-        level="H"
-      ></QrcodeVue>
+      <button class="bg-green-900 rounded-2xl" @click="displayQrCode()" >QRCODE</button>
     </div>
 
     <div>
@@ -68,9 +64,7 @@
 import QrcodeVue from "qrcode.vue";
 export default {
   props: ["existingUser", "hash"],
-  components: {
-    QrcodeVue,
-  },
+
   data() {
     return {
       username: "",
@@ -81,6 +75,9 @@ export default {
     };
   },
   methods: {
+    displayQrCode(){
+      this.$emit("qrcode")
+    },
     async saveToClipboard() {
       try {
         this.clipboardGlow = true;
