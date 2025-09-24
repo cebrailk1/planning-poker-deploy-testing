@@ -25,6 +25,13 @@
         ✏️
       </button>
     </div>
+    <div>
+      <QrcodeVue
+        :value="`http://localhost:5173/room/${hash}`"
+        :size="80"
+        level="H"
+      ></QrcodeVue>
+    </div>
 
     <div>
       <span class="font-semibold">Room-Link: </span><br />
@@ -58,8 +65,12 @@
 </template>
 
 <script>
+import QrcodeVue from "qrcode.vue";
 export default {
   props: ["existingUser", "hash"],
+  components: {
+    QrcodeVue,
+  },
   data() {
     return {
       username: "",
