@@ -81,7 +81,9 @@ export default {
         
         class="flex flex-col items-center p-5 m-5"
         >
-        <div class="relative h-36 flex justify-center">
+        <div class="relative h-36 flex justify-center mb-auto overflow-visible" :style="{
+            height: Math.max(144, 96 + (votingArr.length - 1) * 30) + 'px'
+          }">
           <div
             class="w-16 h-24 bg-white rounded-md border-2 border-gray-300 flex absolute items-center justify-center cursor-pointer text-2xl font-bold text-gray-800 transition-all duration-200 hover:transform hover:-translate-y-1 hover:shadow-md active:scale-95"
             :class="{
@@ -111,14 +113,13 @@ export default {
         </div>
 
         <div v-if="
-              isScrumMaster &&
+              isScrumMaster && 
               isDiscussionPhase &&
               votingArr.length > 0
-            " class="mt-8">
+            " class="mt-auto ">
 
           <button
             v-if="
-              isScrumMaster &&
               isDiscussionPhase &&
               votingArr.length > 0
             "
