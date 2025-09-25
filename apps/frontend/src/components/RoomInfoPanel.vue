@@ -26,7 +26,7 @@
       </button>
     </div>
     <div>
-      <button class="bg-green-900 rounded-2xl" @click="displayQrCode()" >QRCODE</button>
+      <button class="bg-green-900 cursor-pointer rounded-lg w-20 hover:bg-green-600" @click="displayQrCode()" >📱QRCODE</button>
     </div>
 
     <div>
@@ -61,7 +61,6 @@
 </template>
 
 <script>
-import QrcodeVue from "qrcode.vue";
 export default {
   props: ["existingUser", "hash"],
 
