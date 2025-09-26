@@ -6,6 +6,9 @@ import ScrumMasterTools from "./ScrumMasterTools.vue";
 import StoryBoard from "./StoryBoard.vue";
 import UserList from "./UserList.vue";
 import RoomInfoPanel from "./RoomInfoPanel.vue";
+import JoinRoom from "./JoinRoom.vue";
+import RoomHeader from "./RoomHeader.vue";
+import QrcodeVue from "qrcode.vue";
 
 export default {
   props: { hash: String },
@@ -17,6 +20,9 @@ export default {
     ScrumMasterTools,
     UserList,
     RoomInfoPanel,
+    JoinRoom,
+    RoomHeader,
+    QrcodeVue,
   },
   data() {
     return {
@@ -25,7 +31,9 @@ export default {
       existingUser: null,
       stagedStory: null,
       wantsVisitor: false,
-      copySuccess: false,
+      screenWidth: window.innerWidth,
+      screenHeight: window.innerHeight,
+      qrCodePopUp: false,
     };
   },
   methods: {
@@ -38,7 +46,9 @@ export default {
         this.hasUsername = true;
       }
     },
-    UserJoinRoom() {
+    UserJoinRoom(username, wantsVisitor) {
+      this.username = username;
+      this.wantsVisitor = wantsVisitor;
       this.$socketConnect.joinRoom(
         this.hash,
         this.username,
@@ -46,6 +56,10 @@ export default {
         (response) => {
           if (response.error === "user-exists") {
             alert("Dieser Benutzername existiert bereits im Raum!");
+            return;
+          }
+          if (response.error === "room-not-exists") {
+            this.showToast("Raum existiert nicht", "warning");
             return;
           }
 
@@ -66,35 +80,39 @@ export default {
       this.stagedStory = story;
       this.$socketConnect.stageStory(story.name, this.hash);
     },
-    leaveRoom() {
-      this.hasUsername = false;
-      const savedRooms = JSON.parse(localStorage.getItem("rooms"));
-      localStorage.removeItem("rooms");
-      this.$socketConnect.leaveRoom(this.hash, savedRooms[this.hash]);
-    },
-    async exportData() {
-      try {
-        const data = await this.$socketConnect.exportRoomData(this.hash);
-        await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
-        this.copySuccess = true;
+    showToast(message, type = "info") {
+      const toast = document.createElement("div");
+      toast.className = `fixed top-4 right-2 px-4 py-2 rounded-lg shadow-lg text-white font-medium z-50 transition-opacity duration-300 ${
+        type === "success"
+          ? "bg-green-500"
+          : type === "warning"
+          ? "bg-yellow-500"
+          : "bg-blue-500"
+      }`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
 
-        setTimeout(() => {
-          this.copySuccess = false;
-        }, 2000);
-      } catch (err) {
-        console.error("Export fehlgeschlagen:", err);
-      }
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    },
+    displayQr() {
+      this.qrCodePopUp = !this.qrCodePopUp;
     },
   },
   computed: {
-    formattedTimer() {
-      const seconds = this.$socketConnect.timerValue || 0;
-      const min = Math.floor(seconds / 60)
-        .toString()
-        .padStart(2, "0");
-      const sec = (seconds % 60).toString().padStart(2, "0");
-      return `${min}:${sec}`;
+    isMobile() {
+      if (this.screenWidth <= 760 || this.screenHeight <= 600) {
+        return true;
+      } else {
+        return false;
+      }
     },
+  },
+  created() {
+    window.addEventListener("resize", () => {
+      this.screenWidth = window.innerWidth;
+    });
   },
   watch: {
     "$socketConnect.gameLeft"(newVal) {
@@ -111,106 +129,33 @@ export default {
 
 <template>
   <div v-if="!hasUsername">
-    <div
-      class="relative flex items-center justify-center min-h-screen bg-green-900"
-    >
-      <div
-        class="bg-white shadow-2xl rounded-xl opacity-90 p-20 transform transition duration-300 hover:scale-105"
-      >
-        <h1 class="text-3xl mb-8 text-center tracking-wide text-green-800">
-          Beitritt zum Planning Poker Raum
-        </h1>
-        <p class="text-center text-gray-600 mb-6">
-          Du wurdest eingeladen, einem Planning Poker Raum beizutreten.<br />
-          Bitte gib deinen Namen ein, um fortzufahren.
-        </p>
-
-        <div class="mb-6">
-          <input
-            type="text"
-            placeholder="Dein Benutzername"
-            v-model="username"
-            @keyup.enter="UserJoinRoom"
-            class="w-full rounded-lg px-4 py-3 border border-gray-300 shadow-sm focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-400 text-lg"
-          />
-        </div>
-
-        <div class="flex items-center mb-6">
-          <input
-            v-model="wantsVisitor"
-            type="checkbox"
-            id="visitorCheckbox"
-            class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-          />
-          <label for="visitorCheckbox" class="ml-2 block text-sm text-gray-700">
-            Als Beobachter teilnehmen (kann nicht abstimmen)
-          </label>
-        </div>
-
-        <button
-          @click="UserJoinRoom"
-          class="w-full rounded-lg px-4 py-3 bg-gradient-to-r from-green-500 to-green-700 text-white border-gray-300 shadow-sm hover:from-green-600 hover:to-green-800 transition duration-200 font-medium"
-        >
-          Raum beitreten
-        </button>
-
-        <p class="text-center text-gray-500 mt-6 text-sm">
-          Plan together, work smarter.
-        </p>
-      </div>
-
-      <p
-        class="absolute bottom-4 right-4 text-gray-300 text-sm opacity-60 hover:opacity-100 transform hover:-translate-y-1 transition duration-300"
-      >
-        👥 By your Azubi-Team from Hamburg
-      </p>
-    </div>
+    <JoinRoom :username="username" @joinRoom="UserJoinRoom"></JoinRoom>
   </div>
 
-  <div
-    v-else
-    class="relative min-h-screen bg-green-800 text-white overflow-hidden"
-  >
-    <header
-      class="flex justify-between items-center w-full py-4 px-4 bg-green-900 relative"
+  <div v-else class="relative h-screen bg-green-800 text-white overflow-hidden">
+    <RoomHeader :hash="hash"></RoomHeader>
+    <div
+      v-if="qrCodePopUp"
+      class="modal-backdrop"
+      @click.self="qrCodePopUp = false"
     >
-      <div class="flex flex-col items-start">
-        <button
-          @click="exportData"
-          class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg shadow-sm transition duration-200 text-sm"
-        >
-          Export Data
-        </button>
-        <span
-          v-if="copySuccess"
-          class="mt-1 bg-green-200 text-green-900 px-2 py-1 rounded-lg shadow text-xs animate-bounce"
-        >
-          ✅ Kopiert!
-        </span>
+      <div class="modal">
+        <div class="absolute top-px right-2" @click="this.displayQr()">
+          <button class="cursor-pointer bg-red-600 rounded-lg w-8">X</button>
+        </div>
+        <QrcodeVue
+          :value="`http://localhost:5173/room/${hash}`"
+          :size="400"
+          level="H"
+        />
       </div>
-
-      <div class="text-center">
-        <h1 class="text-xl font-bold text-white">
-          Current Story:
-          {{ $socketConnect.stagedStory?.name || "Keine Story ausgewählt" }}
-        </h1>
-        <p v-if="$socketConnect.roundStarted" class="text-lg mt-1">
-          Runde hat gestartet | Timer: {{ formattedTimer }}
-        </p>
-      </div>
-
-      <button
-        class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg shadow-sm transition duration-200 text-sm"
-        @click="leaveRoom"
-      >
-        Leave
-      </button>
-    </header>
-
+    </div>
     <div class="flex space-x-4 mt-4 px-4">
       <RoomInfoPanel
+        v-if="!isMobile"
         :existing-user="existingUser"
         :hash="hash"
+        @qrcode="displayQr"
         class="flex-shrink-0"
         @name-updated="(newName) => (existingUser = newName)"
       />
@@ -221,11 +166,14 @@ export default {
         style="margin-left: 575px"
       />
     </div>
-
-    <UserList />
-    <StoryBoard :hash="hash" @stage-story="setStageStory"></StoryBoard>
-    <DoneStories />
-    <OpponentCard :existingUser="existingUser" />
+    <UserList v-if="!isMobile" />
+    <StoryBoard
+      v-if="!isMobile"
+      :hash="hash"
+      @stage-story="setStageStory"
+    ></StoryBoard>
+    <DoneStories v-if="!isMobile" />
+    <OpponentCard :isMobile="isMobile" :existingUser="existingUser" />
     <GameCards
       v-if="
         $socketConnect.userRole !== 'Scrum Master' &&
@@ -235,3 +183,30 @@ export default {
     />
   </div>
 </template>
+<style>
+.modal-backdrop {
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  /*  display: flex;
+  justify-content: center;
+  align-items: center; */
+  transition: opacity 0.3s ease;
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+</style>

@@ -36,7 +36,7 @@ export default {
             d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
           />
         </svg>
-        Abgeschlossene Stories
+        Done Stories
       </h3>
 
       <div class="space-y-2">
@@ -49,7 +49,7 @@ export default {
               <div class="flex items-center space-x-2">
                 <span
                   class="text-xs bg-green-500 text-white px-2 py-1 rounded-full"
-                  >{{ story.points }} Punkte</span
+                  >{{ story.points }} Points</span
                 >
                 <span class="text-green-400">✅</span>
               </div>
@@ -59,7 +59,7 @@ export default {
       </div>
 
       <div v-if="doneList.length === 0" class="text-center py-4 text-gray-300">
-        <p class="text-sm">Keine abgeschlossenen Stories</p>
+        <p class="text-sm">No done stories</p>
       </div>
     </div>
   </div>

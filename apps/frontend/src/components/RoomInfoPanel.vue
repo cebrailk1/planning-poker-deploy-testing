@@ -2,10 +2,10 @@
   <div
     class="absolute top-25 right-3 bg-green-900 bg-opacity-80 p-4 rounded-lg shadow-lg w-80 space-y-3 text-sm"
   >
-    <h2 class="text-lg font-bold text-yellow-300">🧾 Spielinformationen</h2>
+    <h2 class="text-lg font-bold text-yellow-300">🧾 Game informations</h2>
 
     <div class="font-semibold flex items-center space-x-2">
-      <span>Benutzername:</span>
+      <span>Username:</span>
       <span v-if="!editMode">{{ existingUser }}</span>
       <transition name="fade-slide">
         <input
@@ -25,9 +25,12 @@
         ✏️
       </button>
     </div>
+    <div>
+      <button class="bg-green-900 cursor-pointer rounded-lg w-20 hover:bg-green-600" @click="displayQrCode()" >📱QRCODE</button>
+    </div>
 
     <div>
-      <span class="font-semibold">Raum-Link: </span><br />
+      <span class="font-semibold">Room-Link: </span><br />
       <div class="relative inline-block">
         <img
           src="../assets/checklist.png"
@@ -46,7 +49,7 @@
             v-if="showNotification"
             class="absolute -top-12 -left-16 bg-green-600 text-white px-3 py-1 rounded-md text-xs whitespace-nowrap shadow-lg border border-green-400"
           >
-            ✓ In Zwischenablage kopiert!
+            ✓ Copy in Clipboard!
             <div
               class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-green-600"
             ></div>
@@ -60,6 +63,7 @@
 <script>
 export default {
   props: ["existingUser", "hash"],
+
   data() {
     return {
       username: "",
@@ -70,6 +74,9 @@ export default {
     };
   },
   methods: {
+    displayQrCode(){
+      this.$emit("qrcode")
+    },
     async saveToClipboard() {
       try {
         this.clipboardGlow = true;

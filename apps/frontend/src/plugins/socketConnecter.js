@@ -23,6 +23,7 @@ class SocketConnecter {
     this.discussedStories = [];
     this.gameLeft = false;
     this.timerValue = 0;
+    this.doppelteKarten = { 1: [], 2: [], 3: [], 5: [], 8: [], 13: [] };
     return reactive(this);
   }
 
@@ -100,7 +101,7 @@ class SocketConnecter {
         this.storyList = response.stories;
         this.stagedStory = response.stagedStory;
         this.discussedStories = response.discussedStories;
-
+        this.doppelteKarten = response.room.doppelteKarten
         this.revealCards = response.room.discussion || false;
       }
 
@@ -110,6 +111,8 @@ class SocketConnecter {
             player.card = response.card;
           }
         });
+
+        this.doppelteKarten = response.doppelteKarten
       }
 
       if (response.type === "started-round") {
@@ -126,6 +129,7 @@ class SocketConnecter {
         this.stagedStory = null;
         this.revealCards = false;
         this.userList.forEach((p) => (p.card = null));
+        this.doppelteKarten = response.doppelteKarten
       }
 
       if (response.type === "estimate-chosen") {
@@ -175,6 +179,14 @@ class SocketConnecter {
 
       if (response.type === "user-list-update") {
         this.userList = response.players;
+      }
+      if(response.type === "room-not-exists"){
+        if (this.onRoomJoinedCallback) {
+          this.onRoomJoinedCallback({
+            error: "room-not-exists",
+            message: "Room does not exists",
+          });
+        }
       }
     };
 

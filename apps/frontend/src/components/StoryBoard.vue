@@ -78,7 +78,7 @@ export default {
               <div class="flex items-center space-x-2">
                 <span
                   class="text-xs bg-green-500 text-white px-2 py-1 rounded-full"
-                  >{{ story.points }} Punkte</span
+                  >{{ story.points }} Points</span
                 >
                 <span class="text-green-400">✅</span>
               </div>
@@ -104,7 +104,7 @@ export default {
       </div>
 
       <div v-if="storyList.length === 0" class="text-center py-4 text-gray-300">
-        <p class="text-sm">Keine Stories im Backlog</p>
+        <p class="text-sm">No stories in backlog</p>
       </div>
     </div>
 
@@ -147,15 +147,11 @@ export default {
                 v-if="story.points !== null"
                 class="text-xs bg-green-500 text-white px-2 py-1 rounded-full"
               >
-                {{ story.points }} Punkte ✅
+                {{ story.points }} Points ✅
               </span>
             </div>
           </div>
         </div>
-      </div>
-
-      <div v-if="storyList.length === 0" class="text-center py-4 text-gray-300">
-        <p class="text-sm">Keine Stories im Backlog</p>
       </div>
     </div>
   </div>
