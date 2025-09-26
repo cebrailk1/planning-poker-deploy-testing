@@ -36,7 +36,6 @@ export function handleJoinRoom(ws, data, rooms) {
     card: null,
   });
 
-  console.log("das ist role", rooms[roomId].players.role);
 
   const joinedUserIdx = rooms[roomId].players.findIndex(
     (ele) => ele.name === userLower

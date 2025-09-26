@@ -2,7 +2,7 @@ import { sendToEveryClient } from "../utils/sendToClients.js";
 
 export function handleSetCard(ws, data, rooms) {
   const { card, user, roomId } = JSON.parse(data);
-  console.log("user",user)
+
   rooms[roomId].players.forEach((player) => {
     if (player.name === user.toLowerCase()) {
       player.card = card === null ? null : card;

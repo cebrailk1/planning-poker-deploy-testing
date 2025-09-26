@@ -9,7 +9,6 @@ export default {
   },
   methods: {
     UserJoinRoom() {
-      console.log(this.user);
       this.$emit("joinRoom", this.user, this.wantsVisitor);
     },
   },

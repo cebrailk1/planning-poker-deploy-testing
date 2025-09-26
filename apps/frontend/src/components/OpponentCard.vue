@@ -26,7 +26,6 @@ export default {
       }
     },
     handleMouseOver(event){
-      console.log("mouse hovered over")
       this.active = !this.active
     }
   },

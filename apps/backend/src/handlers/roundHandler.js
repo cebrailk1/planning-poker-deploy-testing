@@ -47,7 +47,6 @@ export function handleStartRound(ws, data, rooms) {
 export function handleEndRound(ws, data, rooms) {
   const { roomId, storyPoints, story } = JSON.parse(data);
 
-  console.log("hello", JSON.parse(data));
 
   if (rooms[roomId].timerInterval) {
     clearInterval(rooms[roomId].timerInterval);
