@@ -1,0 +1,29 @@
+{
+  "name": "planning-poker",
+  "version": "1.0.0",
+  "description": "Planning Poker (also known as Scrum Poker) is an Agile estimation technique used by teams to assess the effort or complexity of tasks.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@mucsggit02.sg.de.pri.o2.com:the-lab-apprentices/planning-poker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@aws-amplify/backend": "^1.22.0",
+    "@aws-amplify/backend-cli": "^1.8.2",
+    "aws-cdk-lib": "^2.234.1",
+    "constructs": "^10.6.0",
+    "esbuild": "^0.28.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "aws-amplify": "^6.17.0"
+  }
+}
