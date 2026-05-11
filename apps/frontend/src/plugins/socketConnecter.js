@@ -7,6 +7,7 @@ export default {
 };
 
 let socket;
+const websocketUrl = import.meta.env.VITE_WEBSOCKET_URL || "ws://localhost:8080";
 
 class SocketConnecter {
   constructor() {
@@ -33,7 +34,7 @@ class SocketConnecter {
       return;
     }
 
-    socket = new WebSocket("ws://localhost:8080");
+    socket = new WebSocket(websocketUrl);
 
     socket.onopen = () => {
       if (callback) callback();

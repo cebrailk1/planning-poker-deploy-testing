@@ -101,6 +101,9 @@ export default {
     },
   },
   computed: {
+    roomUrl() {
+      return `${window.location.origin}/room/${this.hash}`;
+    },
     isMobile() {
       if (this.screenWidth <= 760 || this.screenHeight <= 600) {
         return true;
@@ -144,7 +147,7 @@ export default {
           <button class="cursor-pointer bg-red-600 rounded-lg w-8">X</button>
         </div>
         <QrcodeVue
-          :value="`http://localhost:5173/room/${hash}`"
+          :value="roomUrl"
           :size="400"
           level="H"
         />

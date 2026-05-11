@@ -78,12 +78,12 @@ export default {
       this.$emit("qrcode")
     },
     async saveToClipboard() {
+      const roomUrl = `${window.location.origin}/room/${this.hash}`;
+
       try {
         this.clipboardGlow = true;
 
-        await navigator.clipboard.writeText(
-          `http://localhost:5173/room/${this.hash}`
-        );
+        await navigator.clipboard.writeText(roomUrl);
 
         this.showNotification = true;
 
@@ -96,9 +96,7 @@ export default {
         }, 3000);
       } catch (err) {
         console.error("Fehler beim Kopieren:", err);
-        this.fallbackCopyTextToClipboard(
-          `http://localhost:5173/room/${this.hash}`
-        );
+        this.fallbackCopyTextToClipboard(roomUrl);
       }
     },
 
